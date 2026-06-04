@@ -1,0 +1,195 @@
+#pragma once
+#include <string>
+#include "mesh_sdk.h"
+
+
+// latex
+inline static std::string latexVisStr =
+R"(             shader = "csgo_character.vfx"
+                F_BLEND_MODE = 1
+                g_vColorTint = [1.0, 1.0, 1.0, 1.0]
+                g_bFogEnabled = 0
+                g_flMetalness = 0.000
+                g_tMetalness = resource:"materials/default/default_metal_tga_8fbc2820.vtex"
+                g_tColor = resource:"materials/dev/primary_white_color_tga_21186c76.vtex"
+                g_tAmbientOcclusion = resource:"materials/default/default_ao_tga_79a2e0d0.vtex"
+                g_tNormal = resource:"materials/default/default_normal_tga_1b833b2a.vtex")";
+inline static std::string latexInvisStr =
+R"(             shader = "csgo_character.vfx"
+                F_DISABLE_Z_BUFFERING = 1
+                F_DISABLE_Z_PREPASS = 1
+                F_DISABLE_Z_WRITE = 1
+                F_BLEND_MODE = 1
+                g_vColorTint = [1.0, 1.0, 1.0, 1.0]
+                g_bFogEnabled = 0
+                g_flMetalness = 0.000
+                g_tColor = resource:"materials/dev/primary_white_color_tga_21186c76.vtex"
+                g_tAmbientOcclusion = resource:"materials/default/default_ao_tga_79a2e0d0.vtex"
+                g_tNormal = resource:"materials/default/default_normal_tga_1b833b2a.vtex"
+                g_tMetalness = resource:"materials/default/default_metal_tga_8fbc2820.vtex")";
+
+
+// solid
+inline static std::string solidVisStr =
+R"(             shader = "generic.vfx"
+                g_tColor = resource:"materials/dev/primary_white_color_tga_21186c76.vtex"
+                g_tNormal = resource:"materials/default/default_normal_tga_7652cb.vtex"
+                g_tRoughness = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                g_tMetalness = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                g_tAmbientOcclusion = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                F_IGNOREZ = 0
+                F_DISABLE_Z_WRITE = 0
+                F_DISABLE_Z_BUFFERING = 0
+                F_RENDER_BACKFACES = 1
+                g_vColorTint = [1.0, 1.0, 1.0, 1.0])";
+inline static std::string solidInvisStr =
+R"(             shader = "generic.vfx"
+                g_tColor = resource:"materials/dev/primary_white_color_tga_21186c76.vtex"
+                g_tNormal = resource:"materials/default/default_normal_tga_7652cb.vtex"
+                g_tRoughness = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                g_tMetalness = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                g_tAmbientOcclusion = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                F_IGNOREZ = 1
+                F_DISABLE_Z_WRITE = 1
+                F_DISABLE_Z_BUFFERING = 1
+                F_RENDER_BACKFACES = 1
+                g_vColorTint = [1.0, 1.0, 1.0, 1.0])";
+
+// flat
+inline static std::string flatVisStr =
+R"(             shader = "csgo_unlitgeneric.vfx"
+                g_tColor = resource:"materials/dev/primary_white_color_tga_21186c76.vtex"
+                g_tNormal = resource:"materials/default/default_normal_tga_7652cb.vtex"
+                g_tRoughness = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                g_tMetalness = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                g_tAmbientOcclusion = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                F_RENDER_BACKFACES = 1
+                g_vColorTint = [1.0, 1.0, 1.0, 1.0])";
+inline static std::string flatInvisStr =
+R"(             shader = "csgo_unlitgeneric.vfx"
+                g_tColor = resource:"materials/dev/primary_white_color_tga_21186c76.vtex"
+                g_tNormal = resource:"materials/default/default_normal_tga_7652cb.vtex"
+                g_tRoughness = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                g_tMetalness = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                g_tAmbientOcclusion = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                F_IGNOREZ = 1
+                F_DISABLE_Z_WRITE = 1
+                F_DISABLE_Z_BUFFERING = 1
+                F_RENDER_BACKFACES = 1
+                g_vColorTint = [1.0, 1.0, 1.0, 1.0])";
+// bloom
+inline static std::string bloomVisStr =
+R"(             shader = "solidcolor.vfx"
+                g_tColor = resource:"materials/dev/primary_white_color_tga_21186c76.vtex"
+                g_tNormal = resource:"materials/default/default_normal_tga_7652cb.vtex"
+                g_tRoughness = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                g_tMetalness = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                g_tAmbientOcclusion = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+                F_RENDER_BACKFACES = 1
+                g_vColorTint = [9.0, 9.0, 9.0, 9.0])";
+inline static std::string bloomInvisStr =
+R"(				shader = "solidcolor.vfx"
+				g_tColor = resource:"materials/dev/primary_white_color_tga_21186c76.vtex"
+				g_tNormal = resource:"materials/default/default_normal_tga_7652cb.vtex"
+				g_tRoughness = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+				g_tMetalness = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+				g_tAmbientOcclusion = resource:"materials/default/default_normal_tga_b3f4ec4c.vtex"
+				F_IGNOREZ = 1
+				F_DISABLE_Z_WRITE = 1
+				F_DISABLE_Z_BUFFERING = 1
+				F_RENDER_BACKFACES = 1
+				g_vColorTint = [9.0, 9.0, 9.0, 9.0])";
+// glow
+inline static std::string glowVisStr =
+R"(             shader = "csgo_effects.vfx"
+                g_flFresnelExponent = 7.0
+                g_flFresnelFalloff = 10.0
+                g_flFresnelMax = 0.1
+                g_flFresnelMin = 1.0
+                g_tColor = resource:"materials/dev/primary_white_color_tga_21186c76.vtex"
+                g_tMask1 = resource:"materials/default/default_mask_tga_fde710a5.vtex"
+                g_tMask2 = resource:"materials/default/default_mask_tga_fde710a5.vtex"
+                g_tMask3 = resource:"materials/default/default_mask_tga_fde710a5.vtex"
+                g_tSceneDepth = resource:"materials/default/default_mask_tga_fde710a5.vtex"
+                g_flToolsVisCubemapReflectionRoughness = 1.0
+                g_flBeginMixingRoughness = 1.0
+                g_vColorTint = [1.0, 1.0, 1.0, 0.0]
+                F_IGNOREZ = 0
+                F_DISABLE_Z_WRITE = 0
+                F_DISABLE_Z_BUFFERING = 0
+                F_RENDER_BACKFACES = 0)";
+inline static std::string glowInvisStr =
+R"(             shader = "csgo_effects.vfx"
+                g_flFresnelExponent = 7.0
+                g_flFresnelFalloff = 10.0
+                g_flFresnelMax = 0.1
+                g_flFresnelMin = 1.0
+                g_tColor = resource:"materials/dev/primary_white_color_tga_21186c76.vtex"
+                g_tMask1 = resource:"materials/default/default_mask_tga_fde710a5.vtex"
+                g_tMask2 = resource:"materials/default/default_mask_tga_fde710a5.vtex"
+                g_tMask3 = resource:"materials/default/default_mask_tga_fde710a5.vtex"
+                g_tSceneDepth = resource:"materials/default/default_mask_tga_fde710a5.vtex"
+                g_flToolsVisCubemapReflectionRoughness = 1.0
+                g_flBeginMixingRoughness = 1.0
+                g_vColorTint = [1.0, 1.0, 1.0, 0.0]
+                F_IGNOREZ = 1
+                F_DISABLE_Z_WRITE = 1
+                F_DISABLE_Z_BUFFERING = 1
+                F_RENDER_BACKFACES = 0)";
+// ghost
+inline static std::string ghostVisStr =
+R"(             shader = "csgo_effects.vfx"
+                g_tColor = resource:"materials/dev/primary_white_color_tga_21186c76.vtex"
+                g_tNormal = resource:"materials/default/default_normal_tga_7652cb.vtex"
+                g_tMask1 = resource:"materials/default/default_mask_tga_344101f8.vtex"
+                g_tMask2 = resource:"materials/default/default_mask_tga_344101f8.vtex"
+                g_tMask3 = resource:"materials/default/default_mask_tga_344101f8.vtex"
+                g_flOpacityScale = 0.45
+                g_flFresnelExponent = 0.75
+                g_flFresnelFalloff = 1.0
+                g_flFresnelMax = 0.0
+                g_flFresnelMin = 1.0
+                F_ADDITIVE_BLEND = 1
+                F_BLEND_MODE = 1
+                F_TRANSLUCENT = 1
+                F_IGNOREZ = 0
+                F_DISABLE_Z_WRITE = 0
+                F_DISABLE_Z_BUFFERING = 0
+                F_RENDER_BACKFACES = 1
+                g_vColorTint = [1.0, 1.0, 1.0, 0.0])";
+
+inline static std::string ghostInvisStr =
+R"(             shader = "csgo_effects.vfx"
+                g_tColor = resource:"materials/dev/primary_white_color_tga_21186c76.vtex"
+                g_tNormal = resource:"materials/default/default_normal_tga_7652cb.vtex"
+                g_tMask1 = resource:"materials/default/default_mask_tga_344101f8.vtex"
+                g_tMask2 = resource:"materials/default/default_mask_tga_344101f8.vtex"
+                g_tMask3 = resource:"materials/default/default_mask_tga_344101f8.vtex"
+                g_flOpacityScale = 0.45
+                g_flFresnelExponent = 0.75
+                g_flFresnelFalloff = 1.0
+                g_flFresnelMax = 0.0
+                g_flFresnelMin = 1.0
+                F_ADDITIVE_BLEND = 1
+                F_BLEND_MODE = 1
+                F_TRANSLUCENT = 1
+                F_IGNOREZ = 1
+                F_DISABLE_Z_WRITE = 1
+                F_DISABLE_Z_BUFFERING = 1
+                F_RENDER_BACKFACES = 1
+                g_vColorTint = [1.0, 1.0, 1.0, 0.0])";
+
+
+
+inline static CStrongHandle<CMaterial2> latexVis = compile("materials/dev/primary_white.vmat", latexVisStr);
+inline static CStrongHandle<CMaterial2> latexInvis = compile("materials/dev/primary_white.vmat", latexInvisStr);
+inline static CStrongHandle<CMaterial2> solidVis = compile("materials/dev/primary_white.vmat", solidVisStr);
+inline static CStrongHandle<CMaterial2> solidInvis = compile("materials/dev/primary_white.vmat", solidInvisStr);
+inline static CStrongHandle<CMaterial2> flatVis = compile("materials/dev/primary_white.vmat", flatVisStr);
+inline static CStrongHandle<CMaterial2> flatInvis = compile("materials/dev/primary_white.vmat", flatInvisStr);
+inline static CStrongHandle<CMaterial2> bloomVis = compile("materials/dev/primary_white.vmat", bloomVisStr);
+inline static CStrongHandle<CMaterial2> bloomInvis = compile("materials/dev/primary_white.vmat", bloomInvisStr);
+inline static CStrongHandle<CMaterial2> glowVis = compile("materials/dev/primary_white.vmat", glowVisStr);
+inline static CStrongHandle<CMaterial2> glowInvis = compile("materials/dev/primary_white.vmat", glowInvisStr);
+inline static CStrongHandle<CMaterial2> ghostVis = compile("materials/dev/primary_white.vmat", ghostVisStr);
+inline static CStrongHandle<CMaterial2> ghostInvis = compile("materials/dev/primary_white.vmat", ghostInvisStr);
