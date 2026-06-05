@@ -11,6 +11,7 @@
 #include "penetration.h"
 #include "../../../sdk/schema.h"
 #include "hitchance.h"
+#include "../../../sdk/utl.hpp"
 
 static float distance(const Vec3& p1, const Vec3& p2) {
     return std::sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2) + pow(p1.z - p2.z, 2));
@@ -75,6 +76,10 @@ static float getFov(const Vec3& viewAngles, const Vec3& aimAngles)
 
 
 
+
+
+
+
 void FEATURES::AIM::RAGEBOT::onMove(CUserCmd* pCmd)
 {
     if (!CFG::AIM::RAGEBOT::isAimEnabled)
@@ -109,18 +114,12 @@ void FEATURES::AIM::RAGEBOT::onMove(CUserCmd* pCmd)
 
     for (int i = 1; i < 64; i++)
     {
-        if (!MEM::IsInGame())
-            return;
         uintptr_t controller = MEM::GetEntityByIndex(entityList, i);
         if (!controller) continue;
 
-        if (!MEM::IsInGame())
-            return;
         uint32_t pawnHandle = MEM::read<uint32_t>(controller + offsets::m_hPlayerPawn);
         if (!pawnHandle) continue;
 
-        if (!MEM::IsInGame())
-            return;
         C_CSPlayerPawn* playerPawn = (C_CSPlayerPawn*)MEM::GetEntityByHandle(entityList, pawnHandle);
         if (!playerPawn || playerPawn == localPawn) continue;
 
@@ -175,5 +174,5 @@ void FEATURES::AIM::RAGEBOT::onMove(CUserCmd* pCmd)
 		return;
 
 
-	pCmd->nButtons.nValue |= 1 << 0;
+    pCmd->nButtons.nValue |= 1 << 0;
 }

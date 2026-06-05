@@ -257,6 +257,7 @@
     <ClInclude Include="sdk\qangle.h" />
     <ClInclude Include="sdk\schema.h" />
     <ClInclude Include="sdk\trace\trace.h" />
+    <ClInclude Include="sdk\utl.hpp" />
     <ClInclude Include="state.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

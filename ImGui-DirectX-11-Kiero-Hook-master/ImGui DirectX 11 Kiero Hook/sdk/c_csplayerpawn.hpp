@@ -88,6 +88,7 @@ public:
 
 };
 
+
 class C_CSPlayerPawn {
 public:
     SCHEMA(m_hud_model_arms, c_base_handle, "C_CSPlayerPawn", "m_hHudModelArms");

@@ -140,6 +140,12 @@ public:
 	BYTE pad01[0x8];
 	std::uint32_t nHasBits; // 0x8
 	std::uint64_t nCachedBits; // 0xC
+
+	void CheckAndSetBits(std::uint32_t nBits)
+	{
+		if (!(nHasBits & nBits))
+			nHasBits |= nBits;
+	}
 };//size: 0x18
 
 class CMsgQAngle : public CBasePB
