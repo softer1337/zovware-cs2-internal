@@ -6,6 +6,7 @@
 #include "../core/hooks/pattern.h"
 #include "trace/trace.h"
 #include "mesh_sdk.h"
+#include "globalvars.hpp"
 
 namespace IVEngineToClient_Search
 {
@@ -63,6 +64,8 @@ namespace Interface {
 	static IEntitySystem* entity = nullptr;
 	static IFileSystem* filesystem = nullptr;
     static IEngine2Client* eng2cl = nullptr;
+    static C_GlobalVariables* vars = nullptr;
+    static C_GameParticleManager* gamepart = nullptr;
 
     void Init()
     {
@@ -160,7 +163,6 @@ namespace Interface {
                 "client.dll",
                 "48 8B 0D ? ? ? ? 48 89 7C 24 ? 8B FA C1 EB"
             );
-			printf("addr: %p\n", (void*)addr);
             entity = *reinterpret_cast<IEntitySystem**>(
                 MEM::GetAbsoluteAddress<uint8_t>(
                     reinterpret_cast<uint8_t*>(addr),
@@ -168,8 +170,6 @@ namespace Interface {
                     0
                 )
                 );
-			printf("entity: %p\n", (void*)entity);
-			printf("base: %p\n", (void*)MEM::GetClient());
             //entity = *reinterpret_cast<IEntitySystem**>(
             //    MEM::GetClient() + offsets::dwGameEntitySystem
             //    );
@@ -186,12 +186,42 @@ namespace Interface {
 		return filesystem;
     }
 
-    IEngine2Client* Interface::GetIEngine2Client()
+    IEngine2Client* GetIEngine2Client()
     {
 		if (!eng2cl) {
 			eng2cl = Get<IEngine2Client>(clientFactory, "Source2Client002");
 		}
         return eng2cl;
     }
+
+    C_GlobalVariables* GetGlobalVars() 
+    {
+        if (!vars) {
+            uintptr_t addr = PatternScan("client.dll", "48 89 15 ?? ?? ?? ?? 48 89 42");
+
+            addr += *reinterpret_cast<int32_t*>(addr + 3);
+            addr += 7;
+
+            vars = *reinterpret_cast<C_GlobalVariables**>(addr);
+        }
+        return vars;
+    }
+
+    C_GameParticleManager* GetGameParticleManager()
+    {
+        if (!gamepart) {
+            uintptr_t addr = PatternScan("client.dll", "48 8B 0D ? ? ? ? 41 B8 ? ? ? ? F3 0F 11 74 24");
+            if (!addr) {
+                printf("Pattern not found\n");
+            }
+
+            addr += *reinterpret_cast<int32_t*>(addr + 3);
+            addr += 7;
+
+            gamepart = *reinterpret_cast<C_GameParticleManager**>(addr);
+        }
+        return gamepart;
+    }
+
 }
 

@@ -3,6 +3,7 @@
 #include "../math.hpp"
 #include <array>
 #include "../c_csplayerpawn.hpp"
+#include "../econsdk.hpp"
 
 struct Ray_t
 {
@@ -39,7 +40,7 @@ public:
 
 
 
-class alignas(16) CGameTrace
+class CGameTrace
 {
 public:
 	void* pSurfaceProperties;
@@ -78,27 +79,55 @@ public:
 		return (flFraction > 0.97f);
 	}
 };
-struct TraceArrElement_t {
-	char pad0[0x30];
+
+struct TraceArrElement_t
+{
+	char pad_0000[0x30];
 };
 
-struct TraceArrayElement_t { char data[0x30]; };
+class c_trace_info {
+public:
+	float m_unk;
+	float m_distance;
+	float m_damage;
+	std::uint32_t m_pen_count;
+	c_base_handle m_handle;
+	std::uint32_t m_penetration_flags;
+};
+
+
 struct BulletModulateEntry_t {
 	float startFrac; float endFrac; float damage; int maxSecondaryTraces;
 	uint16_t surfStart; uint16_t surfEnd; uint8_t flags; uint8_t pad[3];
 };
-struct BulletModArray_t {
-	int size; char pad4[4]; BulletModulateEntry_t* data; char pad16[8];
+struct c_segment_holder {
+	Vec3 m_hit_normal;
+	float m_fraction;
+	void* m_body;
+	void* m_shape;
+	uint16_t m_bone_index;
+	c_base_handle m_entity_handle;
+	__int16 m_surface_count;
+	bool m_start_in_solid;
+	bool m_hit_point;
 };
-struct alignas(16) TraceData_t {
-	char pad0[24];
-	TraceArrayElement_t m_Arr[0x80];
-	char pad6168[8];
-	BulletModArray_t mod_array;
-	BulletModulateEntry_t mod_inline[8];
-	Vec3 tail_start;
-	Vec3 tail_end;
-	char _pad6200[12];
+
+struct TraceData_t {
+	std::int32_t m_filled_segment_count{ };
+	float m_unk2{ 52.0f };
+	c_segment_holder* m_trace_segments_ptr{ };
+	std::int32_t m_trace_segments_count{ 128 };
+	std::int32_t m_trace_segments_count2{ static_cast<std::int32_t>(0x80000000) };
+	TraceArrElement_t m_trace_segments[0x80] = {};
+	void* m_unk_zeroed;
+	int m_surfaces_count; // 0x1820
+	c_trace_info* m_trace_info; // 0x1828
+	int m_unk_i; // 0x1830
+	void* m_unkn_ptr; // 0x1838
+	char pad_0000[0xB8]; // 0x1840
+	Vec3 m_start; // 0x18F8
+	Vec3 m_end; // 0x1904
+	char pad_0001[0x50];
 };
 
 struct RnQueryShapeAttr_t
@@ -126,10 +155,19 @@ private:
 static_assert(sizeof(RnQueryShapeAttr_t) == 0x38);
 
 
-struct alignas(16) Trace_Filter_t
+struct Trace_Filter_t
 {
-	char pad[164];
-}; // 0x48
+	char pad_0000[8];
+	int64_t m_mask;
+	std::array<int64_t, 2> m_ptr{};
+	std::array<int32_t, 4> m_skip_handles{};
+	std::array<int16_t, 2> m_arr_collisions{};
+	uint8_t m_ptr2{};
+	uint8_t m_ptr3{};
+	uint8_t m_ptr4{};
+	uint8_t m_ptr5{};
+	uint8_t m_collision{};
+}; 
 
 
 
@@ -160,15 +198,19 @@ public:
 
 	void InitializeTraceInfo(CGameTrace* pGameTrace);
 
-	void GetTraceInfo(TraceData_t* trace, CGameTrace* hit, const float unknown_float, void* unknown);
+	void GetTraceInfo(TraceData_t* trace, CGameTrace* hit, const float unknown_float, c_segment_holder* unknown);
 
 	void CreateTrace(TraceData_t* const trace, const Vec3 start, const Vec3 end, const Trace_Filter_t* filler, const int penetration_count);
 
 	bool HandleBulletPenetration(TraceData_t* const pTraceData, HandleBulletPenetrationData_t* pHandleBulletPenetrationData, BulletModulateEntry_t* const pModValue, int team_num, const bool bDrawShowimpacts);
 
-	void InitTraceData(TraceData_t* pTraceData);
+	TraceData_t* InitTraceData(TraceData_t* pTraceData);
 
 	bool ClipRayToEntity(Ray_t* pRay, Vec3 vecStart, Vec3 vecEnd, C_CSPlayerPawn* pEntity, Trace_Filter_t* pFilter, CGameTrace* pGameTrace);
+
+	Trace_Filter_t* InitializeTraceFilter(Trace_Filter_t* filter, C_CSPlayerPawn* Skip, int64_t Mask, uint8_t Layer1, uint8_t Layer2);
+
+	uint64_t DamageToPoint(TraceData_t* trace_data, float damage, float penetration, float range_modifier, int team_num);
 
 };
 CGameTrace traceRay(Vec3 start, Vec3 end, uintptr_t ignore);

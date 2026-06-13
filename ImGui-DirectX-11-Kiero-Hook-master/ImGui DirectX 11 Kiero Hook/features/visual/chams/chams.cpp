@@ -4,9 +4,13 @@
 #include "../../../core/hooks/drawarray/drawarray.h"
 #include "../../../core/hooks/generateprimitives/generateprimitives.h"
 #include <mutex>
+#include "../../../sdk/entitysystem.hpp"
+#include "../../../sdk/hash.hpp"
 
 inline static LoadedMaterial m_CurrentMaterialInvisible;
 inline static LoadedMaterial m_CurrentMaterialVisible;
+
+inline static LoadedMaterial m_CurrentMaterialArms;
 
 inline static std::mutex m_Mutex;
 
@@ -50,6 +54,37 @@ void updateCurrMat()
     default:
         m_CurrentMaterialVisible.mat = flatVis;
         m_CurrentMaterialInvisible.mat = flatInvis;
+        break;
+    }
+
+    switch (CFG::VISUAL::CHAMS::curArmsMat)
+    {
+    case ChamsMat::SOLID:
+        m_CurrentMaterialArms.mat = solidVis;
+        break;
+
+    case ChamsMat::FLAT:
+        m_CurrentMaterialArms.mat = flatVis;
+        break;
+
+    case ChamsMat::LATEX:
+        m_CurrentMaterialArms.mat = latexVis;
+        break;
+
+    case ChamsMat::BLOOM:
+        m_CurrentMaterialArms.mat = bloomVis;
+        break;
+
+    case ChamsMat::GLOW:
+        m_CurrentMaterialArms.mat = glowVis;
+        break;
+
+    case ChamsMat::GHOST:
+        m_CurrentMaterialArms.mat = ghostVis;
+        break;
+
+    default:
+        m_CurrentMaterialArms.mat = flatVis;
         break;
     }
 }
@@ -101,34 +136,67 @@ void FEATURES::VISUAL::CHAMS::onDrawArray(CSceneAnimatableObjectDesc* desc, void
         oDrawArray(desc, a2, mesh_draw, a4, a5, a6, a7);
     }
 }
-bool IsValidPlayer(CSceneAnimatableObject* object)
-{
-    uintptr_t entityList = *reinterpret_cast<uintptr_t*>(MEM::GetClient() + offsets::dwEntityList);
-    if (!entityList) return false;
 
-    uintptr_t listEntry = MEM::read<uintptr_t>(entityList + 0x8 * ((object->hOwner & 0x7FFF) >> 9) + 16);
-    if (!listEntry) return false;
+const char* GetName(CSceneAnimatableObject* object) {
+    if (!object->hOwner.is_valid())
+        return "";
 
-    uintptr_t ppEntity = MEM::read<uintptr_t>(listEntry + 112 * (object->hOwner & 0x1FF));
-    if (!ppEntity) return false;
+    CSchemaClassInfo* info = ((C_BaseEntity*)Interface::GetEntitySystem()->getBaseBntity(object->hOwner.get_entry_index()))->getSchemaClassInfo();
+    if (!info)
+        return "";
 
-    int health = MEM::read<int>(ppEntity + offsets::m_iHealth);
-    if (health <= 0 || health > 100) return false;
-
-    int team = MEM::read<int>(ppEntity + offsets::m_iTeamNum);
-    if (team == MEM::read<int>(MEM::GetClient() + offsets::dwLocalPlayerPawn)) return false;
-
-    return true;
+    return info->GetName();
 }
+
+bool IsPlayer(CSceneAnimatableObject* object)
+{
+    static auto hash = fnv1a::hash_64("C_CSPlayerPawn");
+    if (fnv1a::hash_64(GetName(object)) == hash)
+        return true;
+
+    return false;
+}
+
+void ApplyChams(CMeshDrawPrimitive_t* mesh, CStrongHandle<CMaterial2> mat, Color_t  color) {
+    mesh->pMaterial = mat;
+    mesh->pMaterial2 = mat;
+    mesh->colValue = color;
+}
+
+enum ChamsObjectType {
+    PLAYER = 1,
+    HUDARMS = 2,
+    HUDWEAPON = 3,
+    WEAPONS = 4,
+    UNKNOWN = 999
+};
+
 
 bool FEATURES::VISUAL::CHAMS::onGeneratePrimitives(CSceneAnimatableObject* object, void* a3, CMeshPrimitiveOutputBuffer* render_buf, void* thisptr)
 {
-    if (!IsValidPlayer(object) || !CFG::VISUAL::CHAMS::isChamsEnabled)
+    if (!CFG::VISUAL::CHAMS::isChamsEnabled)
+        return false;
+
+    const char* name = GetName(object);
+    uint64_t hashed_name = fnv1a::hash_64(name);
+
+    ChamsObjectType type = ChamsObjectType::UNKNOWN;
+
+    if (hashed_name == fnv1a::hash_64("C_CSPlayerPawn"))
+        type = ChamsObjectType::PLAYER;
+    else if (hashed_name == fnv1a::hash_64("C_CS2HudModelArms"))
+        type = ChamsObjectType::HUDARMS;
+    else if (hashed_name == fnv1a::hash_64("C_CS2HudModelWeapon"))
+        type = ChamsObjectType::HUDWEAPON;
+    else if (hashed_name == fnv1a::hash_64("C_CSWeaponBase"))
+        type = ChamsObjectType::WEAPONS;
+    else
         return false;
 
     updateCurrMat();
     bool processed = false;
 
+    // Invisible Chams
     if (CFG::VISUAL::CHAMS::isInvisEnabled && m_CurrentMaterialInvisible.mat.pBinding)
     {
         uint32_t* flags = reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(object) + 0x78);
@@ -146,13 +214,16 @@ bool FEATURES::VISUAL::CHAMS::onGeneratePrimitives(CSceneAnimatableObject* objec
             auto mesh = &render_buf->m_out[i];
             if (!mesh || !mesh->pSceneAnimatableObject)
                 continue;
-            mesh->pMaterial = m_CurrentMaterialInvisible.mat;
-            mesh->pMaterial2 = m_CurrentMaterialInvisible.mat;
-            mesh->colValue = ImColorToColor(CFG::VISUAL::CHAMS::chamsInvisColor);
+
+            if (type == ChamsObjectType::PLAYER)
+            {
+                ApplyChams(mesh, m_CurrentMaterialInvisible.mat, ImColorToColor(CFG::VISUAL::CHAMS::chamsInvisColor));
+                processed = true;
+            }
         }
-        processed = true;
     }
 
+    // Visible Chams
     if (CFG::VISUAL::CHAMS::isVisEnabled && m_CurrentMaterialVisible.mat.pBinding)
     {
         int prev = render_buf->m_start_primitive;
@@ -164,18 +235,22 @@ bool FEATURES::VISUAL::CHAMS::onGeneratePrimitives(CSceneAnimatableObject* objec
             auto mesh = &render_buf->m_out[i];
             if (!mesh || !mesh->pSceneAnimatableObject)
                 continue;
-            mesh->pMaterial = m_CurrentMaterialVisible.mat;
-            mesh->pMaterial2 = m_CurrentMaterialVisible.mat;
-            mesh->colValue = ImColorToColor(CFG::VISUAL::CHAMS::chamsVisColor);
+
+            if (type == ChamsObjectType::PLAYER)
+            {
+                ApplyChams(mesh, m_CurrentMaterialVisible.mat, ImColorToColor(CFG::VISUAL::CHAMS::chamsVisColor));
+                processed = true;
+            }
+            else if (type == ChamsObjectType::HUDARMS && CFG::VISUAL::CHAMS::isArmsEnabled)
+            {
+                ApplyChams(mesh, m_CurrentMaterialArms.mat, ImColorToColor(CFG::VISUAL::CHAMS::chamsArmsColor));
+                processed = true;
+            }
         }
-        processed = true;
     }
 
     if (!processed)
-    {
-        oGeneratePrimitives(thisptr, object, a3, render_buf);
         return false;
-    }
 
     return true;
 }

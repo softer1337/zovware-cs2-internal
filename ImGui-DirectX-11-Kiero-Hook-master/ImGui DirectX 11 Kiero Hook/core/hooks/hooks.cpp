@@ -8,6 +8,7 @@
 #include "../../core/hooks/smoke/smokedraw.h"
 #include "chat/chat.h"
 #include "viewmodel/calcviewmodel.h"
+#include "tonemapupdate/tonemapupdate.h"
 
 void InitHooks() {
 	Hook_createmove();
@@ -19,6 +20,7 @@ void InitHooks() {
 	Hook_ProcessSmoke();
 	Hook_CalcViewModel();
 	Hook_frameStage();
+	Hook_tonemapUpdate();
 
 	Init_ChatMessage();
 

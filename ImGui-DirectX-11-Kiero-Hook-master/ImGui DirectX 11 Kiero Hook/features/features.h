@@ -9,6 +9,9 @@ namespace FEATURES {
 		namespace BHOP {
 			void onMove(CUserCmd* pCmd);
 		}
+		namespace AUTOSTOP {
+			void onMove(CUserCmd* pCmd, bool want);
+		}
 	}
 	
 	namespace SKINS {
@@ -32,12 +35,19 @@ namespace FEATURES {
 		namespace WORLD {
 			namespace SKYBOX {
 				void onUpdateSkyBox(__int64 a1, __int64 a2, __int64 a3, int nCount, int render_flags, __int64 a6, __int64 a7);
+				void init_on_level_load();
+				void change_skybox_material();
+				void restore_default_skybox();
 			}
 			namespace WORLDCOLOR {
 				void onDrawAggregateSceneObject(__int64 a1, __int64 a2, CAggregateObjectArray* a3);
+				void onTonemapUpdate(__int64 a1);
 			}
 			namespace SMOKE {
 				void onDrawSmoke(__int64 a1);
+			}
+			namespace PARTICLES {
+				void onFrameStage(int stage);
 			}
 		}
 	}

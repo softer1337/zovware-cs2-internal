@@ -66,7 +66,9 @@ public:
 
         return ret;
     }
-
+    float get_max_speed() {
+        return MEM::CallVFunc<float, 366>(this);
+    }
     [[nodiscard]] float GetSpread()
     {
         using Fn = float(__fastcall*)(void*);
@@ -96,12 +98,17 @@ public:
     SCHEMA(m_iTeamNum, int32_t, "C_BaseEntity", "m_iTeamNum");
     SCHEMA(m_ArmorValue, int32_t, "C_CSPlayerPawn", "m_ArmorValue");
 
+    SCHEMA(m_fFlags, int32_t, "C_BaseEntity", "m_fFlags");
+    SCHEMA(m_vecVelocity, Vec3, "C_BaseEntity", "m_vecVelocity");
+    SCHEMA(m_vecAbsVelocity, Vec3, "C_BaseEntity", "m_vecAbsVelocity");
     SCHEMA(m_iHealth, int32_t, "C_BaseEntity", "m_iHealth");
     SCHEMA(m_flSpawnTime, float, "C_CSPlayerPawnBase", "m_flLastSpawnTimeIndex");
 	SCHEMA(m_vOldOrigin, Vec3, "C_BasePlayerPawn", "m_vOldOrigin");
 	SCHEMA(m_vecViewOffset, Vec3, "C_BaseModelEntity", "m_vecViewOffset");
 
     SCHEMA(m_pWeaponServices, CPlayer_WeaponServices*, "C_BasePlayerPawn", "m_pWeaponServices");
+
+    SCHEMA(m_pGameSceneNode, C_GameSceneNode*, "C_BaseEntity", "m_pGameSceneNode");
 
     bool HasArmour(int iHitgroup) {
         if (!m_pItemServices())

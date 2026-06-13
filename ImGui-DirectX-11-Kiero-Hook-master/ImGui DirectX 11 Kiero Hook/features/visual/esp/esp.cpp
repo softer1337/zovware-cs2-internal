@@ -105,7 +105,9 @@ void drawBox(ImVec2 start, ImVec2 end, Vec3 origin, const float viewMatrix[4][4]
     }
 }
 
+void drawHP(ImVec2 start, ImVec2 end, int health) {
 
+}
 
 void FEATURES::VISUAL::ESP::onRender() {
 	if (!CFG::VISUAL::ESP::isEspEnabled) return;
@@ -159,6 +161,8 @@ void FEATURES::VISUAL::ESP::onRender() {
 			float y = screenHead.y;
 		
 			drawBox(ImVec2(x, y), ImVec2(x + width, y + height), feet, viewMatrix);
+
+
 		}
 	}
 

@@ -17,6 +17,9 @@ __int64 __fastcall hkFrameStageNotify(__int64 a1, int a2)
 
     FEATURES::VISUAL::MODELCHANGER::onFrameStage(a2);
 	FEATURES::SKINS::onFrameStage(a2);
+	FEATURES::VISUAL::WORLD::PARTICLES::onFrameStage(a2);
+	FEATURES::VISUAL::WORLD::SKYBOX::change_skybox_material();
+
     oFrameStageNotify(a1, a2);
 }
 

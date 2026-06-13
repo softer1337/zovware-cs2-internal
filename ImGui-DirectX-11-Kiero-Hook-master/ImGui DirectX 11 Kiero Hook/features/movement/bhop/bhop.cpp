@@ -1,5 +1,6 @@
 #include "../../features.h"
 #include "../../../core/mem.hpp"
+#include "../../../sdk/ctx.hpp"
 
 
 
@@ -12,7 +13,7 @@ void FEATURES::MOVEMENT::BHOP::onMove(CUserCmd* pCmd)
     if (!client)
         return;
 
-    uintptr_t localPawn = *(uintptr_t*)(client + offsets::dwLocalPlayerPawn);
+    uintptr_t localPawn = (uintptr_t)context->localPawn;
     if (!localPawn)
         return;
 

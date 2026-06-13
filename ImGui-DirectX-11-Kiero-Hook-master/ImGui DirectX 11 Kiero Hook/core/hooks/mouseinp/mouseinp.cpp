@@ -40,4 +40,7 @@ void Hook_MouseInputEnabled()
 	{
 		MH_EnableHook(reinterpret_cast<void*>(addr2));
 	}
+	else {
+		MessageBoxA(0, "test", "debug", 0);
+	}
 }

@@ -10,6 +10,7 @@
 #endif
 #include "../../../sdk/trace/trace.h"
 #include "../../../sdk/schema.h"
+#include "../../../sdk/ctx.hpp"
 
 static float distance(const Vec3& p1, const Vec3& p2) {
 	return std::sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2) + pow(p1.z - p2.z, 2));
@@ -85,19 +86,19 @@ void FEATURES::AIM::LEGITBOT::onMove(CUserCmd* pCmd)
         return;
     
     uintptr_t client = MEM::GetClient();
-    C_CSPlayerPawn* localPawn = (C_CSPlayerPawn*)MEM::GetLocalPawn();
+ 
 
-    if (!client || !localPawn)
+    if (!client || !context->localPawn)
         return;
 
-    int localTeam = localPawn->m_iTeamNum();
+    int localTeam = context->localPawn->m_iTeamNum();
 
     uintptr_t entityList = MEM::read<uintptr_t>(client + offsets::dwEntityList);
     if (!entityList)
         return;
 
-    Vec3 localPos = localPawn->m_vOldOrigin() +
-        localPawn->m_vecViewOffset();
+    Vec3 localPos = context->localPawn->m_vOldOrigin() +
+        context->localPawn->m_vecViewOffset();
 
     QAngle qView = pCmd->csgoUserCmd.pBaseCmd->pViewAngles->angValue;
     Vec3 viewAngles(qView.x, qView.y, 0.f);
@@ -108,20 +109,14 @@ void FEATURES::AIM::LEGITBOT::onMove(CUserCmd* pCmd)
 
     for (int i = 1; i < 64; i++)
     {
-        if (!MEM::IsInGame())
-            return;
         uintptr_t controller = MEM::GetEntityByIndex(entityList, i);
         if (!controller) continue;
 
-        if (!MEM::IsInGame())
-            return;
         uint32_t pawnHandle = MEM::read<uint32_t>(controller + offsets::m_hPlayerPawn);
         if (!pawnHandle) continue;
 
-        if (!MEM::IsInGame())
-            return;
         C_CSPlayerPawn* playerPawn = (C_CSPlayerPawn*)MEM::GetEntityByHandle(entityList, pawnHandle);
-        if (!playerPawn || playerPawn == localPawn) continue;
+        if (!playerPawn || playerPawn == context->localPawn) continue;
 
         if (playerPawn->m_iHealth() <= 0)
             continue;
@@ -133,7 +128,7 @@ void FEATURES::AIM::LEGITBOT::onMove(CUserCmd* pCmd)
         if (pos.IsZero())
             continue;
 
-        if (!isVisibleBone(6, (uintptr_t)localPawn, (uintptr_t)playerPawn))
+        if (!isVisibleBone(6, (uintptr_t)context->localPawn, (uintptr_t)playerPawn))
             continue;
 
         Vec3 aim = calcAngle(localPos, pos);

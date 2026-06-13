@@ -84,6 +84,11 @@ namespace CFG {
 			inline ImColor chamsVisColor = ImColor(1.f, 1.f, 1.f, 1.f);
 			inline ImColor chamsInvisColor = ImColor(1.f, 1.f, 1.f, 1.f);
 			inline ChamsMat curMat = ChamsMat::GHOST;
+
+			inline bool isArmsEnabled = false;
+			inline ImColor chamsArmsColor = ImColor(1.f, 1.f, 1.f, 1.f);
+			inline ChamsMat curArmsMat = ChamsMat::BLOOM;
+
 			inline bool isInvisEnabled = true;
 			inline bool isVisEnabled = true;
 		}
@@ -93,8 +98,14 @@ namespace CFG {
 			inline bool isSkyboxEnabled = false;
 			inline Vec3 skyboxColor = Vec3(1.f, 0.f, 1.f);
 
+			inline bool isCustomSkyboxEnabled = false;
+			inline int selectedSkybox = 0;
+
 			inline bool isSmokeEnabled = true;
 			inline Vec3 smokeColor = Vec3(1.f, 0.f, 1.f);
+
+			inline bool isNightmodeEnabled = true;
+			inline int nightmodeValue = 100;
 
 			inline bool isWorldModulationEnabled = false;
 			inline Vec3 worldModulationColor = Vec3(1.f, 0.f, 1.f);
@@ -114,6 +125,8 @@ namespace CFG {
 			inline int minDamage = 1;
 			inline float fov = 5.f;
 			inline int hitChance = 71;
+
+			inline bool internal_wantsStop = false;
 		}
 	}
 }

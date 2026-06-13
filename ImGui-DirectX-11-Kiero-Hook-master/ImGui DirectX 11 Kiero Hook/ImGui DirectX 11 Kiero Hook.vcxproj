@@ -50,6 +50,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -129,7 +130,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
@@ -137,6 +138,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeaderFile />
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,20 +159,24 @@
     <ClCompile Include="core\hooks\pattern.cpp" />
     <ClCompile Include="core\hooks\skybox\updateskybox.cpp" />
     <ClCompile Include="core\hooks\smoke\smokedraw.cpp" />
+    <ClCompile Include="core\hooks\tonemapupdate\tonemapupdate.cpp" />
     <ClCompile Include="core\hooks\viewmodel\calcviewmodel.cpp" />
     <ClCompile Include="features\aim\legit\legitbot.cpp" />
     <ClCompile Include="features\aim\rage\hitchance.cpp" />
     <ClCompile Include="features\aim\rage\penetration.cpp" />
     <ClCompile Include="features\aim\rage\rage.cpp" />
+    <ClCompile Include="features\movement\autostop\autostop.cpp" />
     <ClCompile Include="features\movement\bhop\bhop.cpp" />
     <ClCompile Include="features\skins\skinchanger.cpp" />
     <ClCompile Include="features\visual\chams\chams.cpp" />
     <ClCompile Include="features\visual\esp\esp.cpp" />
     <ClCompile Include="features\visual\modelchanger\modelchanger.cpp" />
     <ClCompile Include="features\visual\viewmodel\viewmodel.cpp" />
+    <ClCompile Include="features\visual\world\particles\particlemgr.cpp" />
     <ClCompile Include="features\visual\world\smoke\smokecolor.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="features\visual\world\worldcolor\tone.cpp" />
     <ClCompile Include="features\visual\world\worldcolor\worldcolor.cpp" />
     <ClCompile Include="features\visual\world\skybox\skybox.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -210,6 +216,7 @@
     <ClInclude Include="core\hooks\pattern.h" />
     <ClInclude Include="core\hooks\skybox\updateskybox.h" />
     <ClInclude Include="core\hooks\smoke\smokedraw.h" />
+    <ClInclude Include="core\hooks\tonemapupdate\tonemapupdate.h" />
     <ClInclude Include="core\hooks\viewmodel\calcviewmodel.h" />
     <ClInclude Include="core\mem.hpp" />
     <ClInclude Include="features\aim\rage\hitchance.h" />
@@ -242,9 +249,11 @@
     <ClInclude Include="menu\sound.h" />
     <ClInclude Include="menu\tung_sahur.h" />
     <ClInclude Include="sdk\bone.hpp" />
+    <ClInclude Include="sdk\ctx.hpp" />
     <ClInclude Include="sdk\c_csplayerpawn.hpp" />
     <ClInclude Include="sdk\econsdk.hpp" />
     <ClInclude Include="sdk\entitysystem.hpp" />
+    <ClInclude Include="sdk\globalvars.hpp" />
     <ClInclude Include="sdk\hash.hpp" />
     <ClInclude Include="sdk\input\usercmd.h" />
     <ClInclude Include="sdk\interface.h" />
@@ -254,6 +263,7 @@
     <ClInclude Include="sdk\mesh_sdk.h" />
     <ClInclude Include="sdk\math.hpp" />
     <ClInclude Include="sdk\offsets.h" />
+    <ClInclude Include="sdk\particlesystem.hpp" />
     <ClInclude Include="sdk\qangle.h" />
     <ClInclude Include="sdk\schema.h" />
     <ClInclude Include="sdk\trace\trace.h" />

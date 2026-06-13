@@ -146,6 +146,9 @@ public:
 		if (!(nHasBits & nBits))
 			nHasBits |= nBits;
 	}
+	void set_bits(uint64_t n_bits) {
+		nCachedBits |= n_bits;
+	}
 };//size: 0x18
 
 class CMsgQAngle : public CBasePB
@@ -187,12 +190,75 @@ public:
 	int nFrameNumber; // 0x70
 	int nTargetEntIndex; // 0x74
 };
-
+enum e_button_state : int8_t {
+	in_button_up = 0,
+	in_button_down = 1,
+	in_button_down_up = 2,
+	in_button_up_down = 3,
+	in_button_up_down_up = 4,
+	in_button_down_up_down = 5,
+	in_button_down_up_down_up = 6,
+	in_button_up_down_up_down = 7
+};
 struct CInButtonStatePB : CBasePB
 {
 	std::uint64_t nValue;
 	std::uint64_t nValueChanged;
 	std::uint64_t nValueScroll;
+
+
+	void set_button_state(const uint64_t& u_value, e_button_state e_button_state) {
+		switch (e_button_state) {
+		case e_button_state::in_button_up: {
+			nValue &= ~u_value;
+			nValueChanged &= ~u_value;
+			nValueScroll &= ~u_value;
+			break;
+		}
+		case e_button_state::in_button_down: {
+			nValue |= u_value;
+			nValueChanged &= ~u_value;
+			nValueScroll &= ~u_value;
+			break;
+		}
+		case e_button_state::in_button_down_up: {
+			nValue &= ~u_value;
+			nValueChanged |= u_value;
+			nValueScroll &= ~u_value;
+			break;
+		}
+		case e_button_state::in_button_up_down: {
+			nValue |= u_value;
+			nValueChanged |= u_value;
+			nValueScroll &= ~u_value;
+			break;
+		}
+		case e_button_state::in_button_up_down_up: {
+			nValue &= ~u_value;
+			nValueChanged &= ~u_value;
+			nValueScroll |= u_value;
+			break;
+		}
+		case e_button_state::in_button_down_up_down: {
+			nValue |= u_value;
+			nValueChanged &= ~u_value;
+			nValueScroll |= u_value;
+			break;
+		}
+		case e_button_state::in_button_down_up_down_up: {
+			nValue &= ~u_value;
+			nValueChanged |= u_value;
+			nValueScroll |= u_value;
+			break;
+		}
+		case e_button_state::in_button_up_down_up_down: {
+			nValue |= u_value;
+			nValueChanged |= u_value;
+			nValueScroll |= u_value;
+			break;
+		}
+		}
+	}
 };
 
 struct CSubtickMoveStep : CBasePB
@@ -204,7 +270,24 @@ public:
 	float flAnalogForwardDelta;
 	float flAnalogLeftDelta;
 };
-
+enum e_protobuf_bits_t : uint32_t {
+	protoslot_1 = 1 << 0,
+	protoslot_2 = 1 << 1,
+	protoslot_3 = 1 << 2,
+	protoslot_4 = 1 << 3,
+	protoslot_5 = 1 << 4,
+	protoslot_6 = 1 << 5,
+	protoslot_7 = 1 << 6,
+	protoslot_8 = 1 << 7,
+	protoslot_9 = 1 << 8,
+	protoslot_10 = 1 << 9,
+	protoslot_11 = 1 << 10,
+	protoslot_12 = 1 << 11,
+	protoslot_13 = 1 << 12,
+	protoslot_14 = 1 << 13,
+	protoslot_15 = 1 << 14,
+	protoslot_16 = 1 << 15
+};
 class CBaseUserCmdPB : public CBasePB
 {
 public:
@@ -225,6 +308,72 @@ public:
 	std::uint32_t nConsumedServerAngleChanges;
 	std::int32_t nCmdFlags;
 	std::uint32_t nPawnEntityHandle;
+
+
+	void set_legacy_command_number(const int& value) {
+		nLegacyCommandNumber = value;
+		set_bits(e_protobuf_bits_t::protoslot_4);
+	}
+
+	void set_client_tick(const int& value) {
+		nClientTick = value;
+		set_bits(e_protobuf_bits_t::protoslot_5);
+	}
+
+	void set_forward_move(const float& value) {
+		flForwardMove = value;
+		set_bits(e_protobuf_bits_t::protoslot_6);
+	}
+
+	void set_side_move(const float& value) {
+		flSideMove = value;
+		set_bits(e_protobuf_bits_t::protoslot_7);
+	}
+
+	void set_up_move(const float& value) {
+		flUpMove = value;
+		set_bits(e_protobuf_bits_t::protoslot_8);
+	}
+
+	void set_impulse(const int& value) {
+		nImpulse = value;
+		set_bits(e_protobuf_bits_t::protoslot_9);
+	}
+
+	void set_weapon_select(const int& value) {
+		nWeaponSelect = value;
+		set_bits(e_protobuf_bits_t::protoslot_10);
+	}
+
+	void set_random_seed(const int& value) {
+		nRandomSeed = value;
+		set_bits(e_protobuf_bits_t::protoslot_11);
+	}
+
+	void set_moused_x(const int& value) {
+		nMousedX = value;
+		set_bits(e_protobuf_bits_t::protoslot_12);
+	}
+
+	void set_moused_y(const int& value) {
+		nMousedY = value;
+		set_bits(e_protobuf_bits_t::protoslot_13);
+	}
+
+	void set_consumed_server_angle_changes(const uint32_t& value) {
+		nConsumedServerAngleChanges = value;
+		set_bits(e_protobuf_bits_t::protoslot_14);
+	}
+
+	void set_cmd_flags(const int& value) {
+		nCmdFlags = value;
+		set_bits(e_protobuf_bits_t::protoslot_15);
+	}
+
+	void set_pawn_entity_handle(const uint32_t& value) {
+		nPawnEntityHandle = value;
+		set_bits(e_protobuf_bits_t::protoslot_16);
+	}
 
 }; //size: 0x68?
 

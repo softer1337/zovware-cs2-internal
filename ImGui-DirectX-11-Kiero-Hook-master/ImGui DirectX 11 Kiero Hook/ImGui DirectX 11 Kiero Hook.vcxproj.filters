@@ -150,6 +150,18 @@
     <ClCompile Include="features\aim\rage\hitchance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="features\visual\world\worldcolor\tone.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\hooks\tonemapupdate\tonemapupdate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="features\movement\autostop\autostop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="features\visual\world\particles\particlemgr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="kiero\minhook\dll_resources\MinHook.rc">
@@ -335,6 +347,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sdk\utl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\hooks\tonemapupdate\tonemapupdate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\globalvars.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\particlesystem.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\ctx.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

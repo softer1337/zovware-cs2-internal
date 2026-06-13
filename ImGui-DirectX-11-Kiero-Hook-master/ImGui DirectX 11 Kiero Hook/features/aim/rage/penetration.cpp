@@ -4,6 +4,7 @@
 #include "../../../sdk/bone.hpp"
 #include "../../../sdk/schema.h"
 #include "../../../sdk/c_csplayerpawn.hpp"
+#include "../../../sdk/ctx.hpp"
 
 
 using namespace MEM;
@@ -60,20 +61,10 @@ void ScaleDamage(Data_t& mData) {
 	if (!mData.pTargetPawn)
 		return;
 
-	uintptr_t pLocal = read<uintptr_t>(GetClient() + offsets::dwLocalPlayerPawn);
-	if (!pLocal)
-		return;
-
 	CPlayer_ItemServices* ItemServices = mData.pTargetPawn->m_pItemServices();
 	if (!ItemServices)
 		return;
 
-	C_CSWeaponBase* weapon = GetCurreintWeapon(pLocal);
-	if (!weapon)
-		return;
-	WeaponData_t* weaponData = weapon->GetWeaponData();
-	if (!weaponData)
-		return;
 
 	auto flDamageScaleCTHead = 1.f;
 	auto flDamageScaleCTBody = 1.f;
@@ -89,7 +80,7 @@ void ScaleDamage(Data_t& mData) {
 		flHeadDamageScale *= 0.5f;
 	switch (mData.iHitGroup) {
 	case HITGROUP_HEAD:
-		mData.flDamage *= weaponData->m_flHeadshotMultiplier() * flHeadDamageScale;
+		mData.flDamage *= context->activeWeaponData->m_flHeadshotMultiplier() * flHeadDamageScale;
 		break;
 		case HITGROUP_CHEST:
 		case HITGROUP_LEFTARM:
@@ -110,7 +101,7 @@ void ScaleDamage(Data_t& mData) {
 	if (!mData.pTargetPawn->HasArmour(mData.iHitGroup))
 		return;
 
-	float flHeavyArmorBonus = 1.0f, flArmorBonus = 0.5f, flArmorRatio = weaponData->m_flArmorRatio() * 0.5f;
+	float flHeavyArmorBonus = 1.0f, flArmorBonus = 0.5f, flArmorRatio = context->activeWeaponData->m_flArmorRatio() * 0.5f;
 
 	if (ItemServices->m_bHasHelmet()) {
 		flHeavyArmorBonus = 0.25f;
@@ -133,143 +124,110 @@ void ScaleDamage(Data_t& mData) {
 }
 
 
-bool FireBullet(Data_t& mData)
-{
+bool FireBullet(Data_t& mData) {
+	printf("[FireBullet] start\n");
+	printf("StartPos: %.2f %.2f %.2f\n", mData.vecStartPos.x, mData.vecStartPos.y, mData.vecStartPos.z);
+	printf("EndPos:   %.2f %.2f %.2f\n", mData.vecEndPos.x, mData.vecEndPos.y, mData.vecEndPos.z);
 
-	if (!mData.pTargetPawn) {
-		return false;
-	}
+	Vec3 direction = mData.vecEndPos - mData.vecStartPos;
+	direction.NormalizeInPlace();
 
-	uintptr_t pLocal = read<uintptr_t>(GetClient() + offsets::dwLocalPlayerPawn);
+	TraceData_t trace_data;
+	Interface::GetTraceManager()->InitTraceData(&trace_data);
 
-	if (!pLocal) {
-		return false;
-	}
+	printf("[Trace] InitTraceData done\n");
 
-	CPlayer_ItemServices* ItemServices = mData.pTargetPawn->m_pItemServices();
+	printf("[Trace] start=%.2f %.2f %.2f\n",
+		trace_data.m_start.x,
+		trace_data.m_start.y,
+		trace_data.m_start.z);
 
-	if (!ItemServices) {
-		return false;
-	}
-
-	C_CSWeaponBase* weapon = GetCurreintWeapon(pLocal);
-
-	if (!weapon) {
-		return false;
-	}
-
-	WeaponData_t* weaponData = weapon->GetWeaponData();
-
-	if (!weaponData) {
-		return false;
-	}
-
-	Vec3 vecDirection = (mData.vecEndPos - mData.vecStartPos).Normalize();
-	
+	printf("[Trace] end=%.2f %.2f %.2f\n",
+		trace_data.m_end.x,
+		trace_data.m_end.y,
+		trace_data.m_end.z);
 
 
-	const Vec3 vecEndPosition =
-		mData.vecStartPos + vecDirection * weaponData->m_flRange();
-
-	TraceData_t pTraceData{};
-	Interface::GetTraceManager()->InitTraceData(&pTraceData);
-
-	Trace_Filter_t pTraceFilter;
-
-	Interface::GetTraceManager()->Init(
-		pTraceFilter,
-		(C_CSPlayerPawn*)pLocal,
-		0x1C300B,
-		4,
-		7);
-
-	Interface::GetTraceManager()->CreateTrace(
-		&pTraceData,
-		mData.vecStartPos,
-		vecEndPosition,
-		&pTraceFilter,
-		4);
+	// Aim the damage trace straight at the requested point. Previously a random spread
+	// offset was baked into the direction, which pushed the ray off the hitbox and made
+	// fire_bullet under-report or miss damage entirely. Spread is the game's runtime
+	// randomness — it must NOT be part of the ragebot's damage estimate.
 
 
-	HandleBulletPenetrationData_t mHandleBulletData;
-	mHandleBulletData.damage = weaponData->m_nDamage();
-	mHandleBulletData.penetration = weaponData->m_flPenetration();
-	mHandleBulletData.penetrationCount = 4;
-	mHandleBulletData.rangeModifier = weaponData->m_flRangeModifier();
-	mHandleBulletData.penetrationStopped = false;
-	mHandleBulletData.tailLength = pTraceData.tail_end.Length();
 
-	mData.flDamage = static_cast<float>(weaponData->m_nDamage());
+	printf("[Weapon] ptr=%p\n", context->activeWeapon);
 
-	float flTraceLength = 0.f;
-	auto flMaxRange = weaponData->m_flRange();
+	printf("[WeaponData] ptr=%p\n", context->activeWeaponData);
 
-	auto& arr = pTraceData.mod_array;
 
-	for (int i = 0; i < arr.size; ++i)
+	if (context->activeWeaponData)
 	{
-		BulletModulateEntry_t* entry = &arr.data[i];
-		uint16_t surf_idx = entry->surfEnd & 0x7FFF;
-		if (surf_idx >= 0x80) break;
-		TraceArrayElement_t* surf = &pTraceData.m_Arr[surf_idx];
-
-		alignas(16) CGameTrace tr {};
-
-		Interface::GetTraceManager()->InitializeTraceInfo(&tr);
-
-		Interface::GetTraceManager()->GetTraceInfo(&pTraceData, &tr, entry->startFrac, surf);
-
-
-
-		flMaxRange -= flTraceLength;
-
-
-
-		flTraceLength += tr.flFraction * flMaxRange;
-
-		mData.flDamage *= std::powf(
-			weaponData->m_flRangeModifier(),
-			flTraceLength / 500.f);
-
-		if (tr.pHitEntity)
-		{
-
-			int hitIndex =
-				GetEntryIndex((uintptr_t)tr.pHitEntity);
-
-			int targetIndex =
-				GetEntryIndex((uintptr_t)mData.pTargetPawn);
-
-
-			if (hitIndex == targetIndex)
-			{
-
-				ScaleDamage(mData);
-
-				return true;
-			}
-		}
-
-		bool result =
-			Interface::GetTraceManager()->HandleBulletPenetration(
-				&pTraceData,
-				&mHandleBulletData,
-				entry,
-				3,
-				0);
-
-
-		if (result)
-		{
-			break;
-		}
-		if (mHandleBulletData.penetrationCount <= 0 || mHandleBulletData.penetrationStopped) {
-			break;
-		}
-
-		mData.flDamage = mHandleBulletData.damage;
+		printf("[WeaponData] dmg=%f range=%f pen=%f\n",
+			context->activeWeaponData->m_nDamage(),
+			context->activeWeaponData->m_flRange(),
+			context->activeWeaponData->m_flPenetration());
 	}
 
+	Vec3 delta = direction * context->activeWeaponData->m_flRange();
+	Vec3 end_pos = mData.vecStartPos + delta;
 
+	trace_data.m_start = mData.vecStartPos;
+	trace_data.m_end = end_pos;
+
+	Trace_Filter_t filter;
+	Interface::GetTraceManager()->InitializeTraceFilter(&filter, (C_CSPlayerPawn*)MEM::GetLocalPawn(), 0x1C300B, 3, 15);
+	filter.m_ptr4 |= 2u;
+	filter.m_ptr[0] |= 0x4000000000uLL;
+
+	printf("[Trace] CreateTrace calling...\n");
+
+	Interface::GetTraceManager()->CreateTrace(&trace_data, mData.vecStartPos, delta, &filter, 4);
+
+	printf("[Trace] CreateTrace done\n");
+
+	Interface::GetTraceManager()->DamageToPoint(&trace_data, context->activeWeaponData->m_nDamage(), context->activeWeaponData->m_flPenetration(), context->activeWeaponData->m_flRangeModifier(), context->localPawn->m_iTeamNum());
+
+	printf("[DamageToPoint] surfaces=%d\n", trace_data.m_surfaces_count);
+	for (int i = 0; i < trace_data.m_surfaces_count; i++)
+	{
+		printf("[Loop] i=%d\n", i);
+
+		c_trace_info& info = trace_data.m_trace_info[i];
+
+		//printf("[Info] dist=%f dmg=%f handle=%d\n",
+		//	info.m_distance,
+		//	info.m_damage,
+		//	info.m_handle.to_int());
+
+		//int idx = (info.m_handle.to_int() >> 16) & 0xFFFF;
+
+		//printf("[IDX] %d\n", idx);
+	}
+
+	//	printf("[GetTraceInfo] calling idx=%d ptr=%p\n",
+	//		idx,
+	//		trace_data.m_trace_segments_ptr);
+	//	CGameTrace trace;
+	//	Interface::GetTraceManager()->GetTraceInfo(&trace_data, &trace, info.m_distance, &trace_data.m_trace_segments_ptr[(info.m_handle.to_int() >> 16) & 0xFFFF]);
+	//	printf("[GetTraceInfo] done\n");
+
+	//	if (trace.pHitEntity)
+	//	{
+	//		printf("[HIT] entity=%p target=%p match=%d\n",
+	//			trace.pHitEntity,
+	//			mData.pTargetPawn,
+	//			trace.pHitEntity == mData.pTargetPawn);
+	//	}
+
+	//	if (trace.pHitEntity && trace.pHitEntity == mData.pTargetPawn) {
+	//		mData.flDamage = info.m_damage;
+	//		mData.iHitGroup = trace.pHitBox->nHitBoxIndex;
+	//		ScaleDamage(mData);
+
+	//		printf("[FireBullet] end\n");
+	//		return true;
+	//	}
+	//}
+	//printf("[FireBullet] end\n");
 	return false;
 }

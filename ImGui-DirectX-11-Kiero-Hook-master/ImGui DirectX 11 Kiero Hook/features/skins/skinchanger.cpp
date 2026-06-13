@@ -163,7 +163,76 @@ C_BaseEntity* get_hud_weapon(C_BaseEntity* weapon, C_CSPlayerPawn* local_pawn) {
 	return nullptr;
 }
 
+std::uintptr_t find_hud_element(const char* name) {
 
+	using fn_t = std::uintptr_t(__fastcall*)(const char*);
+	static auto fn = reinterpret_cast<fn_t>(
+		PatternScan("client.dll",
+			"4C 8B DC 53 48 83 EC ? 48 8B 05")
+		);
+	return fn ? fn(name) : 0;
+}
+
+void clear_hud_weapon_icon(std::uintptr_t hud_weapons, std::int32_t index, std::int64_t unk) {
+	static auto call_address = PatternScan("client.dll", "E8 ? ? ? ? 8B F8 C6 84 24");
+	if (!call_address)
+		return;
+
+	auto fn = reinterpret_cast<std::int64_t(__fastcall*)(std::uintptr_t, std::int32_t, std::int64_t)>(
+		(call_address) + 5 + *reinterpret_cast<std::int32_t*>(call_address + 1)
+		);
+	fn(hud_weapons, index, unk);
+}
+
+struct hud_weapon_panel_t {
+	std::uintptr_t base = 0;
+	std::uintptr_t data = 0;
+	std::int32_t   count = 0;
+};
+
+static bool resolve_weapon_panel(hud_weapon_panel_t& out) {
+	const auto hud = find_hud_element("HudWeaponSelection");
+	if (!MEM::validPtr(hud))
+		return false;
+
+	out.base = hud - 0x98;
+	out.data = *reinterpret_cast<std::uintptr_t*>(out.base + 0x58);
+	out.count = *reinterpret_cast<std::int32_t*>  (out.base + 0x50);
+	return MEM::validPtr(out.data) && out.count > 0 && out.count <= 64;
+}
+
+void clear_hud_weapon_icons() {
+	__try {
+		hud_weapon_panel_t panel;
+		if (!resolve_weapon_panel(panel))
+			return;
+		for (std::int32_t i = panel.count - 1; i >= 0; --i)
+			clear_hud_weapon_icon(panel.base, i, 0);
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER) {}
+}
+
+void clear_hud_weapon_icon_for(c_econ_entity* weapon) {
+	if (!MEM::validPtr(weapon))
+		return;
+	__try {
+		hud_weapon_panel_t panel;
+		if (!resolve_weapon_panel(panel))
+			return;
+
+		auto* es = Interface::GetEntitySystem();
+		for (std::int32_t i = panel.count - 1; i >= 0; --i) {
+			const auto handle = *reinterpret_cast<std::int32_t*>(panel.data + 72 * i + 0x38);
+			if (handle < 0)
+				continue;
+			if ((c_econ_entity*)(es->getBaseBntity(handle & 0x7FFF)) == weapon) {
+				clear_hud_weapon_icon(panel.base, i, 0);
+				return;
+			}
+		}
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER) {}
+}
 
 void process_knife(c_econ_entity* weapon, C_EconItemView* item, C_CSPlayerPawn* local_pawn, bool force_update, bool& did_update, uint64_t local_steam_id) {
 	if (CFG::SKINS::knifeChanger.m_knife == 0)
@@ -252,13 +321,13 @@ void process_knife(c_econ_entity* weapon, C_EconItemView* item, C_CSPlayerPawn* 
 	m_last_knife_paint_kit_id = paint_kit_id;
 	m_last_knife_wear = CFG::SKINS::knifeChanger.m_wear;
 	m_last_knife_seed = CFG::SKINS::knifeChanger.m_seed;
-	//c_hud::clear_hud_weapon_icon_for(weapon);
+	clear_hud_weapon_icon_for(weapon);
 	did_update = true;
 }
 
 void apply_skin(c_econ_entity* weapon, C_EconItemView* item, int paint_kit_id, float wear, int seed, const char* custom_name, C_CSPlayerPawn* local_pawn, uint16_t def_index)
 {
-	remove(item);
+	//remove(item);
 	auto* controller = local_pawn->GetController();
 	uint32_t local_account_id = controller ? (uint32_t)controller->GetSteamID() : 0;
 
@@ -266,9 +335,9 @@ void apply_skin(c_econ_entity* weapon, C_EconItemView* item, int paint_kit_id, f
 	uint64_t real_id_full = item->m_item_id();
 
 	item->m_item_id_high() = 0xFFFFFFFF;
-	//item->m_item_id_low() = real_item_id_low ;
-	//item->m_item_id() = real_id_full;           //m_iItemID
-	//item->m_account_id() = local_account_id; //m_iAccountID
+	item->m_item_id_low() = real_item_id_low;
+	item->m_item_id() = real_id_full;           //m_iItemID
+	item->m_account_id() = local_account_id; //m_iAccountID
 
 	item->m_initialized() = true;            //m_bInitialized
 	item->m_bDisallowSOCm() = false;
@@ -278,7 +347,7 @@ void apply_skin(c_econ_entity* weapon, C_EconItemView* item, int paint_kit_id, f
 	weapon->m_wear() = wear;
 	weapon->m_seed() = seed;
 
-	create(item, paint_kit_id, wear, seed);
+	//create(item, paint_kit_id, wear, seed);
 	weapon->update_composite(true);
 
 	if (custom_name && custom_name[0] != '\0')
@@ -339,7 +408,7 @@ void process_weapon(c_econ_entity* weapon, C_EconItemView* item, C_CSPlayerPawn*
 		return;
 
 	apply_skin(weapon, item, paint_kit_id, skin.wear, skin.seed, skin.custom_name, local_pawn, def_index);
-	//c_hud::clear_hud_weapon_icon_for(weapon);
+	clear_hud_weapon_icon_for(weapon);
 	did_update = true;
 }
 

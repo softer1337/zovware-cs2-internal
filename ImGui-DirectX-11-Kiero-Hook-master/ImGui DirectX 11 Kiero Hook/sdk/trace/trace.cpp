@@ -25,11 +25,11 @@ void Tracing::Init(Trace_Filter_t& Filter, C_CSPlayerPawn* Skip, uint64_t Mask, 
 		InitTraceFilterFn(Filter, Skip, Mask, Layer, Idk);
 }
 
-void Tracing::InitTraceData(TraceData_t* pTraceData)
+TraceData_t* Tracing::InitTraceData(TraceData_t* pTraceData)
 {
-	using InitTraceData_t = void(__fastcall*)(TraceData_t*);
+	using InitTraceData_t = TraceData_t*(__fastcall*)(TraceData_t*);
 	static InitTraceData_t fnInitTraceData = reinterpret_cast<InitTraceData_t>(PatternScan("client.dll", "48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8D 79 ? 33 F6 C7 47"));
-	fnInitTraceData(pTraceData);
+	return fnInitTraceData(pTraceData);
 }
 
 bool Tracing::ClipRayToEntity(Ray_t* pRay, Vec3 vecStart, Vec3 vecEnd, C_CSPlayerPawn* pEntity, Trace_Filter_t* pFilter, CGameTrace* pGameTrace)
@@ -37,6 +37,21 @@ bool Tracing::ClipRayToEntity(Ray_t* pRay, Vec3 vecStart, Vec3 vecEnd, C_CSPlaye
 	using ClipRayToEntity_t = bool(__fastcall*)(void*, Ray_t*, Vec3*, Vec3*, void*, Trace_Filter_t*, CGameTrace*);
 	static ClipRayToEntity_t fnClipRayToEntity = reinterpret_cast<ClipRayToEntity_t>(PatternScan("client.dll", "48 8B C4 48 89 58 ?? 48 89 68 ?? 56 57 41 54 48 81 EC"));
 	return fnClipRayToEntity(this, pRay, &vecStart, &vecEnd, pEntity, pFilter, pGameTrace);
+}
+
+Trace_Filter_t* Tracing::InitializeTraceFilter(Trace_Filter_t* filter, C_CSPlayerPawn* Skip, int64_t Mask, uint8_t Layer1, uint8_t Layer2)
+{
+	using InitializeTraceFilter_t = Trace_Filter_t*(__fastcall*)(Trace_Filter_t*, C_CSPlayerPawn*, int64_t, uint8_t, uint8_t);
+	static InitializeTraceFilter_t fnInitializeTraceFilter = reinterpret_cast<InitializeTraceFilter_t>(PatternScan("client.dll", "48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC ? 0F B6 41 ? 33 FF C7 41 ?"));
+	return fnInitializeTraceFilter(filter, Skip, Mask, Layer1, Layer2);
+}
+
+uint64_t Tracing::DamageToPoint(TraceData_t* trace_data, float damage, float penetration, float range_modifier, int team_num)
+{
+	using DamageToPoint_t = uint64_t(__fastcall*)(TraceData_t*, float, float, float, int, int, void*);
+	static DamageToPoint_t nigger = (DamageToPoint_t)PatternScan("client.dll", "40 53 57 41 56 48 83 EC ? 8B 84 24");
+
+	return nigger(trace_data, damage, penetration, range_modifier, 4, team_num, nullptr);
 }
 
 void Tracing::InitializeTraceInfo(CGameTrace* pGameTrace)
@@ -47,8 +62,8 @@ void Tracing::InitializeTraceInfo(CGameTrace* pGameTrace)
 	fnInitializeTraceInfo(pGameTrace);
 }
 
-void Tracing::GetTraceInfo(TraceData_t* trace, CGameTrace* hit, const float unknown_float, void* unknown) {
-	using GetTraceInfo_t = void(__fastcall*)(TraceData_t*, CGameTrace*, float, void*);
+void Tracing::GetTraceInfo(TraceData_t* trace, CGameTrace* hit, const float unknown_float, c_segment_holder* unknown) {
+	using GetTraceInfo_t = void(__fastcall*)(TraceData_t*, CGameTrace*, float, c_segment_holder*);
 	static GetTraceInfo_t fnGetTraceInfo = reinterpret_cast<GetTraceInfo_t>(PatternScan("client.dll", "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B E9 0F 29 74 24"));
 
 	return fnGetTraceInfo(trace, hit, unknown_float, unknown);
@@ -67,7 +82,7 @@ void Tracing::CreateTrace(TraceData_t* const trace, const Vec3 start, const Vec3
 			);
 	static CreateTrace_t fnCreateTrace = reinterpret_cast<CreateTrace_t>(PatternScan("client.dll", "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56 41 57 48 83 EC 50 F2 0F 10 02"));
 
-	fnCreateTrace(trace, start, end, filler, penetration_count, true);
+	fnCreateTrace(trace, start, end, filler, 4, true);
 }
 
 

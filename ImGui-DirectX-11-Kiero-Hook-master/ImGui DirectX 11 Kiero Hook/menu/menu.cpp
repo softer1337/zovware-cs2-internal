@@ -313,6 +313,21 @@ namespace MENU {
                 ImGui::Checkbox("Invisible", &CFG::VISUAL::CHAMS::isInvisEnabled);
                 ImGui::ColorEdit4("Invisible Color", (float*)&CFG::VISUAL::CHAMS::chamsInvisColor);
 
+                if (ImGui::TreeNode("Chams Arms"))
+                {
+                    ImGui::Checkbox("Enable Arms Chams", &CFG::VISUAL::CHAMS::isArmsEnabled);
+
+                    if (CFG::VISUAL::CHAMS::isArmsEnabled)
+                    {
+                        ImGui::ColorEdit4("Arms Color", (float*)&CFG::VISUAL::CHAMS::chamsArmsColor, ImGuiColorEditFlags_NoInputs);
+
+                        ImGui::Combo("Material", (int*)&CFG::VISUAL::CHAMS::curArmsMat,
+                            "Flat\0Solid\0Bloom\0Glow\0Ghost\0Latex\0\0");
+                    }
+
+                    ImGui::TreePop();
+                }
+
                 ImGui::EndTabItem();
             }
 
@@ -324,11 +339,30 @@ namespace MENU {
                 ImGui::Checkbox("Skybox", &CFG::VISUAL::WORLD::isSkyboxEnabled);
                 ImGui::ColorEdit3("Sky Color", (float*)&CFG::VISUAL::WORLD::skyboxColor);
 
+                ImGui::Separator();
+                ImGui::Text("Custom Skybox Material");
+                ImGui::Checkbox("Enable Custom Skybox", &CFG::VISUAL::WORLD::isCustomSkyboxEnabled);
+
+                if (CFG::VISUAL::WORLD::isCustomSkyboxEnabled)
+                {
+                    const char* skybox_items[] = {
+                        "Default",
+                        "Overcast 01",
+                        "Day 01"
+                    };
+
+                    ImGui::Combo("Skybox Material", &CFG::VISUAL::WORLD::selectedSkybox,
+                        skybox_items, IM_ARRAYSIZE(skybox_items));
+                }
+
                 ImGui::Checkbox("Smoke", &CFG::VISUAL::WORLD::isSmokeEnabled);
                 ImGui::ColorEdit3("Smoke Color", (float*)&CFG::VISUAL::WORLD::smokeColor);
 
                 ImGui::Checkbox("World Modulation", &CFG::VISUAL::WORLD::isWorldModulationEnabled);
                 ImGui::ColorEdit3("World Color", (float*)&CFG::VISUAL::WORLD::worldModulationColor);
+
+                ImGui::Checkbox("Nightmode", &CFG::VISUAL::WORLD::isNightmodeEnabled);
+                ImGui::SliderInt("Nightmode value", &CFG::VISUAL::WORLD::nightmodeValue, 0, 100);
 
                 ImGui::EndTabItem();
             }

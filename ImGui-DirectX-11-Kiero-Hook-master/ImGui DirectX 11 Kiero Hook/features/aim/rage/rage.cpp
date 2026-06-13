@@ -12,6 +12,7 @@
 #include "../../../sdk/schema.h"
 #include "hitchance.h"
 #include "../../../sdk/utl.hpp"
+#include "../../../sdk/ctx.hpp"
 
 static float distance(const Vec3& p1, const Vec3& p2) {
     return std::sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2) + pow(p1.z - p2.z, 2));
@@ -77,6 +78,17 @@ static float getFov(const Vec3& viewAngles, const Vec3& aimAngles)
 
 
 
+bool should_stop(C_CSPlayerPawn* pLocal) {
+    float velocity = pLocal->m_vecAbsVelocity().Length_2d();
+    // C_CSWeaponBase* weapon = (C_CSWeaponBase*)(Interface::GetEntitySystem()->getBaseBntity(pLocal->m_pWeaponServices()->m_active_weapon().get_entry_index()));
+    //float max_speed = weapon->get_max_speed();
+    //printf("vel=%.f max=%.f", velocity, max_speed);
+
+   // if (velocity < 220.f * 0.34f)
+   //     return false;
+
+    return true;
+}
 
 
 
@@ -92,18 +104,17 @@ void FEATURES::AIM::RAGEBOT::onMove(CUserCmd* pCmd)
         return;
 
     uintptr_t client = MEM::GetClient();
-    C_CSPlayerPawn* localPawn = (C_CSPlayerPawn*)MEM::GetLocalPawn();
-    if (!client || !localPawn)
+    if (!client || !context->localPawn)
         return;
 
-    int localTeam = localPawn->m_iTeamNum();
+    int localTeam = context->localPawn->m_iTeamNum();
 
     uintptr_t entityList = MEM::read<uintptr_t>(client + offsets::dwEntityList);
     if (!entityList)
         return;
 
-    Vec3 localPos = localPawn->m_vOldOrigin() +
-        localPawn->m_vecViewOffset();
+    Vec3 localPos = context->localPawn->m_vOldOrigin() +
+        context->localPawn->m_vecViewOffset();
 
     QAngle qView = pCmd->csgoUserCmd.pBaseCmd->pViewAngles->angValue;
     Vec3 viewAngles(qView.x, qView.y, 0.f);
@@ -111,6 +122,7 @@ void FEATURES::AIM::RAGEBOT::onMove(CUserCmd* pCmd)
     float bestFov = CFG::AIM::RAGEBOT::fov;
     Vec3 bestAngle{};
     bool found = false;
+    C_CSPlayerPawn* target{};
 
     for (int i = 1; i < 64; i++)
     {
@@ -121,7 +133,7 @@ void FEATURES::AIM::RAGEBOT::onMove(CUserCmd* pCmd)
         if (!pawnHandle) continue;
 
         C_CSPlayerPawn* playerPawn = (C_CSPlayerPawn*)MEM::GetEntityByHandle(entityList, pawnHandle);
-        if (!playerPawn || playerPawn == localPawn) continue;
+        if (!playerPawn || playerPawn == context->localPawn) continue;
 
         if (playerPawn->m_iHealth() <= 0)
             continue;
@@ -135,19 +147,26 @@ void FEATURES::AIM::RAGEBOT::onMove(CUserCmd* pCmd)
 
         Data_t data;
         data.iHitGroup = HITGROUP_HEAD;
-		data.pTargetPawn = (C_CSPlayerPawn*)playerPawn;
-		data.vecStartPos = localPos;
-		data.vecEndPos = pos;
+        data.pTargetPawn = (C_CSPlayerPawn*)playerPawn;
+        data.vecStartPos = localPos;
+        data.vecEndPos = pos;
 
-        if (!FireBullet(data) && !isVisibleBone(6, (uintptr_t)localPawn, (uintptr_t)playerPawn))
+        bool visible = isVisibleBone(
+            6,
+            (uintptr_t)context->localPawn,
+            (uintptr_t)playerPawn
+        );
+
+        if (!visible &&
+            (!CFG::AIM::RAGEBOT::isPenetrationEnabled || !FireBullet(data)))
             continue;
 
-		
+        if (!visible &&
+            data.flDamage < CFG::AIM::RAGEBOT::minDamage)
+            continue;
 
         Vec3 aim = calcAngle(localPos, pos);
 
-		if (!IsAccurate(QAngle(aim.x, aim.y, aim.z), playerPawn, localPos))
-			continue;
 
         float fov = getFov(viewAngles, aim);
         if (fov > bestFov)
@@ -156,23 +175,31 @@ void FEATURES::AIM::RAGEBOT::onMove(CUserCmd* pCmd)
         bestFov = fov;
         bestAngle = aim;
         found = true;
+        target = playerPawn;
     }
 
     if (!found)
         return;
 
-	if (!CFG::AIM::RAGEBOT::isSilentEnabled)
-	{
-		pCmd->csgoUserCmd.pBaseCmd->pViewAngles->angValue.x = bestAngle.x;
-		pCmd->csgoUserCmd.pBaseCmd->pViewAngles->angValue.y = bestAngle.y;
-	}
+    if (!CFG::AIM::RAGEBOT::isSilentEnabled)
+    {
+        pCmd->csgoUserCmd.pBaseCmd->pViewAngles->angValue.x = bestAngle.x;
+        pCmd->csgoUserCmd.pBaseCmd->pViewAngles->angValue.y = bestAngle.y;
+    }
     else {
-		pCmd->SetSubTickAngle(QAngle(bestAngle.x, bestAngle.y, 0.f));
+        pCmd->SetSubTickAngle(QAngle(bestAngle.x, bestAngle.y, 0.f));
     }
 
-	if (!CFG::AIM::RAGEBOT::isForceShootEnabled)
-		return;
+    CFG::AIM::RAGEBOT::internal_wantsStop = should_stop(context->localPawn);
 
+    if (!CFG::AIM::RAGEBOT::isForceShootEnabled)
+        return;
+
+    if (!IsAccurate(QAngle(bestAngle.x, bestAngle.y, bestAngle.z), target, localPos)) 
+        return;
+
+    
 
     pCmd->nButtons.nValue |= 1 << 0;
+    
 }

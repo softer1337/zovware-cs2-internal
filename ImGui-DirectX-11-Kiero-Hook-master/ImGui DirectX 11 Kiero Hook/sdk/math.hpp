@@ -46,7 +46,10 @@ struct Vec3
     {
         return std::sqrt(x * x + y * y + z * z);
     }
-
+    float Length_2d() const
+    {
+        return std::sqrtf(this->x * this->x + this->y * this->y);
+    }
     float LengthSqr() const
     {
         return x * x + y * y + z * z;

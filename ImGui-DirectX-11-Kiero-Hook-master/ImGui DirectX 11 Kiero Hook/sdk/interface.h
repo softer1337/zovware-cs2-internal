@@ -29,6 +29,8 @@ class InputSystem;
 class CResourceSystem;
 class IEntitySystem;
 class C_EconItemSystem;
+class C_GlobalVariables;
+class C_GameParticleManager;
 class IEngine2Client {
 public:
     C_EconItemSystem* GetEconItemSystem();
@@ -69,4 +71,6 @@ namespace Interface {
 	IEntitySystem* GetEntitySystem();
 	IFileSystem* GetIFileSystem();
 	IEngine2Client* GetIEngine2Client();
+    C_GlobalVariables* GetGlobalVars();
+    C_GameParticleManager* GetGameParticleManager();
 }

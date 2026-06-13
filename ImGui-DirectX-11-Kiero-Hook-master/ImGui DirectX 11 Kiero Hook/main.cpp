@@ -209,16 +209,16 @@ DWORD WINAPI InitCheat(LPVOID lpReserved)
 	if (!g_state.running || g_state.unloading)
 		return 0;
 	CreateConsole();
+	Sleep(5000);
 	Interface::Init();
 	InitHooks();
-	initAudioSystem();
+	//initAudioSystem();
 	ChatMessage msg;
 	msg << ImColor(1.f, 0.f, 1.f) << "[binware] " << ImColor(1.f, 1.f, 1.f) << "Init!";
 	msg.send();
-	PlayHitSound(0.3f, BRAINROT);
+	//PlayHitSound(0.3f, BRAINROT);
 	ItemSchema::get()->initialize();
-
-	g_state.running = true;
+ 
 	g_state.initialized = true;
 	return 0;
 }

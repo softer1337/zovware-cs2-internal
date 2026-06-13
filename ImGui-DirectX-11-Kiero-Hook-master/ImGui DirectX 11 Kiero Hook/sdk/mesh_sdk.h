@@ -8,6 +8,7 @@
 #include "schema.h" 
 #include "../core/hooks/hooks.h"
 
+
 using SetModel_t = __int64(__fastcall*)(uintptr_t, const char*);
 inline SetModel_t oSetModel = (SetModel_t)PatternScan("client.dll", CHANGEMODEL_PATTERN);
 
@@ -63,13 +64,11 @@ inline Color_t ImColorToColor(const ImVec4& c)
 }
 struct CSkyBoxSceneObject
 {
-	char  pad1[0xE8];
-
-	Vec3  skyColor;      // 0x100
-
-	float intensity;     // 0x108
-
-	int   skyType;       // 0x134
+public:
+	char pad_0000[0x110]; //0x0
+	void** mat; // 0x110
+	char pad_0118[0x10]; //0x118
+	Vec3 skyColor;
 };
 
 
@@ -199,6 +198,7 @@ public:
 	SCHEMA(m_child, C_GameSceneNode*, "CGameSceneNode", "m_pChild");
 	SCHEMA(m_next_sibling, C_GameSceneNode*, "CGameSceneNode", "m_pNextSibling");
 	SCHEMA(m_owner, CEntityInstance*, "CGameSceneNode", "m_pOwner");
+	SCHEMA(m_vecAbsOrigin, Vec3, "CGameSceneNode", "m_vecAbsOrigin");
 };
 class c_base_handle;
 class C_BaseEntity
@@ -209,7 +209,7 @@ public:
 	CSchemaClassInfo* getSchemaClassInfo()
 	{
 		CSchemaClassInfo* ret = nullptr;
-		MEM::CallVFunc<void, 42U>(this, &ret);
+		MEM::CallVFunc<void, 46U>(this, &ret);
 
 		return ret;
 	}
@@ -225,6 +225,51 @@ public:
 	}
 
 };
+
+
+class c_base_handle
+{
+public:
+	c_base_handle() noexcept :
+		m_index(INVALID_EHANDLE_INDEX) {
+	}
+
+	c_base_handle(const int nEntry, const int nSerial) noexcept {
+		m_index = nEntry | (nSerial << NUM_SERIAL_NUM_SHIFT_BITS);
+	}
+
+	bool operator!=(const c_base_handle& other) const noexcept {
+		return m_index != other.m_index;
+	}
+
+	bool operator==(const c_base_handle& other) const noexcept {
+		return m_index == other.m_index;
+	}
+
+	bool operator<(const c_base_handle& other) const noexcept {
+		return m_index < other.m_index;
+	}
+
+	bool is_valid() const noexcept {
+		return m_index != INVALID_EHANDLE_INDEX;
+	}
+
+	int get_entry_index() const noexcept {
+		return static_cast<int>(m_index & ENT_ENTRY_MASK);
+	}
+
+	int get_serial_number() const noexcept {
+		return static_cast<int>(m_index >> NUM_SERIAL_NUM_SHIFT_BITS);
+	}
+
+	inline int to_int() const {
+		return static_cast<int>(m_index);
+	}
+
+private:
+	std::uint32_t m_index;
+};
+
 struct UnkData_t {
 	char pad_0[0x98];
 	const char* m_panelName;
@@ -233,7 +278,7 @@ struct UnkData_t {
 struct CSceneAnimatableObject {
 	char pad_0[0xB8];
 	UnkData_t* m_Unk;
-	uintptr_t hOwner;
+	c_base_handle hOwner;
 	char pad_1[0x4C];
 };
 
@@ -578,7 +623,7 @@ public:
 		return MEM::CallVFunc<ResourceBinding_t*, 47>(this, & names, "");
 	}
 
-	ResourceBinding_t* BlockingLoadResourceByName(const char* szName) {
+	ResourceBinding_t* BlockingLoadResourceByName(CBufferString* szName) {
 		return MEM::CallVFunc<ResourceBinding_t*, 40>(this, szName, "");
 	}
 
