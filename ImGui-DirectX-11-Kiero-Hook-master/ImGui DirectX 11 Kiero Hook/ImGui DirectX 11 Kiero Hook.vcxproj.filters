@@ -162,6 +162,12 @@
     <ClCompile Include="features\visual\world\particles\particlemgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="core\hooks\entity\entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="features\entity\entity_cache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="kiero\minhook\dll_resources\MinHook.rc">
@@ -359,6 +365,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sdk\ctx.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="features\entity\entity_cache.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\hooks\entity\entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -11,6 +11,7 @@
 #include "../../../sdk/trace/trace.h"
 #include "../../../sdk/schema.h"
 #include "../../../sdk/ctx.hpp"
+#include "../../entity/entity_cache.hpp"
 
 static float distance(const Vec3& p1, const Vec3& p2) {
 	return std::sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2) + pow(p1.z - p2.z, 2));
@@ -107,15 +108,10 @@ void FEATURES::AIM::LEGITBOT::onMove(CUserCmd* pCmd)
     Vec3 bestAngle{};
     bool found = false;
 
-    for (int i = 1; i < 64; i++)
+    for (int i = 0; i < CachedPlayers.size(); i++)
     {
-        uintptr_t controller = MEM::GetEntityByIndex(entityList, i);
-        if (!controller) continue;
+        C_CSPlayerPawn* playerPawn = CachedPlayers[i].pawn;
 
-        uint32_t pawnHandle = MEM::read<uint32_t>(controller + offsets::m_hPlayerPawn);
-        if (!pawnHandle) continue;
-
-        C_CSPlayerPawn* playerPawn = (C_CSPlayerPawn*)MEM::GetEntityByHandle(entityList, pawnHandle);
         if (!playerPawn || playerPawn == context->localPawn) continue;
 
         if (playerPawn->m_iHealth() <= 0)

@@ -51,6 +51,10 @@ namespace FEATURES {
 			}
 		}
 	}
+	namespace ENTITY {
+		void onAddEntity(c_base_handle handle, CEntityInstance* inst);
+		void onRemoveEntity(c_base_handle handle, CEntityInstance* inst);
+	}
 	namespace AIM {
 		namespace LEGITBOT {
 			void onMove(CUserCmd* pCmd);

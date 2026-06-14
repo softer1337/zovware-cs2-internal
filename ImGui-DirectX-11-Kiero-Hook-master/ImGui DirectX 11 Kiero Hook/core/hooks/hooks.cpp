@@ -9,6 +9,7 @@
 #include "chat/chat.h"
 #include "viewmodel/calcviewmodel.h"
 #include "tonemapupdate/tonemapupdate.h"
+#include "entity/entity.h"
 
 void InitHooks() {
 	Hook_createmove();
@@ -21,6 +22,8 @@ void InitHooks() {
 	Hook_CalcViewModel();
 	Hook_frameStage();
 	Hook_tonemapUpdate();
+	Hook_onAddEntity();
+	Hook_onRemoveEntity();
 
 	Init_ChatMessage();
 

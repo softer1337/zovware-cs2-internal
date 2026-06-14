@@ -4,13 +4,18 @@
 #include "interface.h"
 #include "entitysystem.hpp"
 #include "bone.hpp"
+#include "mesh_sdk.h"
+#include "utl.hpp"
 
-
+class C_CSPlayerPawn;
 class C_CSPlayerController {
 public:
 	uint64_t GetSteamID() {
 		return MEM::read<uint64_t>((uintptr_t)this + 0x780);
 	}
+    SCHEMA(m_hPlayerPawn, CHandle<C_CSPlayerPawn>, "CCSPlayerController", "m_hPlayerPawn");
+    SCHEMA(m_sSanitizedPlayerName, CUtlString, "CCSPlayerController", "m_sSanitizedPlayerName");
+    SCHEMA(m_iPawnHealth, uint32_t, "CCSPlayerController", "m_iPawnHealth");
 };
 class CPlayer_WeaponServices {
 public:
@@ -91,6 +96,25 @@ public:
 };
 
 
+class c_entity_identity
+{
+public:
+    OFFSET(int, index, 0x10);
+
+    bool is_valid();
+    int get_serial_number();
+    int get_entry_index();
+};
+
+
+class CEntityInstance
+{
+public:
+    SCHEMA(m_pEntity, c_entity_identity, "CEntityInstance", "m_pEntity");
+
+};
+
+
 class C_CSPlayerPawn {
 public:
     SCHEMA(m_hud_model_arms, c_base_handle, "C_CSPlayerPawn", "m_hHudModelArms");
@@ -105,6 +129,7 @@ public:
     SCHEMA(m_flSpawnTime, float, "C_CSPlayerPawnBase", "m_flLastSpawnTimeIndex");
 	SCHEMA(m_vOldOrigin, Vec3, "C_BasePlayerPawn", "m_vOldOrigin");
 	SCHEMA(m_vecViewOffset, Vec3, "C_BaseModelEntity", "m_vecViewOffset");
+    SCHEMA(m_hOriginalController, CHandle<C_CSPlayerController>, "C_CSPlayerPawnBase", "m_hOriginalController");
 
     SCHEMA(m_pWeaponServices, CPlayer_WeaponServices*, "C_BasePlayerPawn", "m_pWeaponServices");
 

@@ -2,6 +2,7 @@
 #include "../../../core/mem.hpp"
 #include "../../../sdk/math.hpp"
 #include "../../../sdk/c_csplayerpawn.hpp"
+#include "../../entity/entity_cache.hpp"
 #define M_PI       3.14159265358979323846 
 static Vec3 AngleToVector(const Vec3& angles) {
     float pitch = angles.x * (M_PI / 180.0f);
@@ -127,15 +128,9 @@ void FEATURES::VISUAL::ESP::onRender() {
 	float viewMatrix[4][4];
 	memcpy(&viewMatrix, (void*)(client + offsets::dwViewMatrix), sizeof(viewMatrix));
 
-	for (int i = 1; i < 64; i++)
-	{
-		uintptr_t controller = MEM::GetEntityByIndex(entityList, i);
-		if (!controller) continue;
-
-		uint32_t pawnHandle = MEM::read<uint32_t>(controller + offsets::m_hPlayerPawn);
-		if (!pawnHandle) continue;
-
-        C_CSPlayerPawn* playerPawn = (C_CSPlayerPawn*)MEM::GetEntityByHandle(entityList, pawnHandle);
+    for (int i = 0; i < CachedPlayers.size(); i++)
+    {
+        C_CSPlayerPawn* playerPawn = CachedPlayers[i].pawn;
 		if (!playerPawn || playerPawn == localPawn) continue;
 		
 

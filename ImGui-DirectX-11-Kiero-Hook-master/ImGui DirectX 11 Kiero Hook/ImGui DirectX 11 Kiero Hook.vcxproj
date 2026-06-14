@@ -152,6 +152,7 @@
     <ClCompile Include="core\hooks\createmove\createmove.cpp" />
     <ClCompile Include="core\hooks\drawaggregate\drawaggregate.cpp" />
     <ClCompile Include="core\hooks\drawarray\drawarray.cpp" />
+    <ClCompile Include="core\hooks\entity\entity.cpp" />
     <ClCompile Include="core\hooks\framestage\framestage.cpp" />
     <ClCompile Include="core\hooks\generateprimitives\generateprimitives.cpp" />
     <ClCompile Include="core\hooks\hooks.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="features\aim\rage\hitchance.cpp" />
     <ClCompile Include="features\aim\rage\penetration.cpp" />
     <ClCompile Include="features\aim\rage\rage.cpp" />
+    <ClCompile Include="features\entity\entity_cache.cpp" />
     <ClCompile Include="features\movement\autostop\autostop.cpp" />
     <ClCompile Include="features\movement\bhop\bhop.cpp" />
     <ClCompile Include="features\skins\skinchanger.cpp" />
@@ -209,6 +211,7 @@
     <ClInclude Include="core\hooks\createmove\createmove.h" />
     <ClInclude Include="core\hooks\drawaggregate\drawaggregate.h" />
     <ClInclude Include="core\hooks\drawarray\drawarray.h" />
+    <ClInclude Include="core\hooks\entity\entity.h" />
     <ClInclude Include="core\hooks\framestage\framestage.h" />
     <ClInclude Include="core\hooks\generateprimitives\generateprimitives.h" />
     <ClInclude Include="core\hooks\hooks.h" />
@@ -253,6 +256,7 @@
     <ClInclude Include="sdk\c_csplayerpawn.hpp" />
     <ClInclude Include="sdk\econsdk.hpp" />
     <ClInclude Include="sdk\entitysystem.hpp" />
+    <ClInclude Include="features\entity\entity_cache.hpp" />
     <ClInclude Include="sdk\globalvars.hpp" />
     <ClInclude Include="sdk\hash.hpp" />
     <ClInclude Include="sdk\input\usercmd.h" />

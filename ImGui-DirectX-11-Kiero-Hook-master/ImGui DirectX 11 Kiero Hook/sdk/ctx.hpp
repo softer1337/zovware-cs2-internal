@@ -18,7 +18,11 @@ public:
 		if (!localController)
 			return false;
 
-		activeWeapon = (C_CSWeaponBase*)Interface::GetEntitySystem()->getBaseBntity(localPawn->m_pWeaponServices()->m_active_weapon().get_entry_index());
+		auto srv = localPawn->m_pWeaponServices();
+		if (!srv || !srv->m_active_weapon().is_valid())
+			return false;
+
+		activeWeapon = (C_CSWeaponBase*)Interface::GetEntitySystem()->getBaseBntity(srv->m_active_weapon().get_entry_index());
 		if (!activeWeapon)
 			return false;
 

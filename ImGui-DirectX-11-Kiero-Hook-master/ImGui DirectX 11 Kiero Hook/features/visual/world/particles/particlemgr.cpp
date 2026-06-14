@@ -50,7 +50,7 @@ void render_ash()
 
 void FEATURES::VISUAL::WORLD::PARTICLES::onFrameStage(int stage)
 {
-	render_ash();
+	//render_ash();
 
 	if (stage != 8)
 		return;
