@@ -120,7 +120,7 @@ void FEATURES::AIM::LEGITBOT::onMove(CUserCmd* pCmd)
         if (playerPawn->m_iTeamNum() == localTeam)
             continue;
 
-        Vec3 pos = GetBonePosition(static_cast<int>(bone::Head), (uintptr_t)playerPawn);
+        Vec3 pos = GetBonePosition(static_cast<int>(bones::BONE_HEAD), (uintptr_t)playerPawn);
         if (pos.IsZero())
             continue;
 

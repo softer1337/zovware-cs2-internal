@@ -27,7 +27,10 @@ class Tracing;
 class ISchemaSystem;
 class InputSystem;
 class CResourceSystem;
+class CEngineConvar;
 class IEntitySystem;
+class c_network_channel;
+class CNetworkGameClientServices;
 class C_EconItemSystem;
 class C_GlobalVariables;
 class C_GameParticleManager;
@@ -46,6 +49,7 @@ public:
     bool IsInGame();
     bool IsConnected();
     const char* GetLevelNameShort();
+    c_network_channel* GetNetChannelInfo(int split_slot);
 };
 
 namespace Interface {
@@ -73,4 +77,6 @@ namespace Interface {
 	IEngine2Client* GetIEngine2Client();
     C_GlobalVariables* GetGlobalVars();
     C_GameParticleManager* GetGameParticleManager();
+    CEngineConvar* GetConVars();
+    CNetworkGameClientServices* GetNetworkClientServices();
 }

@@ -7,7 +7,7 @@
 #include "math.hpp"
 #include "schema.h" 
 #include "../core/hooks/hooks.h"
-
+#include "bone.hpp"
 
 using SetModel_t = __int64(__fastcall*)(uintptr_t, const char*);
 inline SetModel_t oSetModel = (SetModel_t)PatternScan("client.dll", CHANGEMODEL_PATTERN);
@@ -78,6 +78,35 @@ public:
 #define NUM_SERIAL_NUM_SHIFT_BITS 15
 
 class CEntityInstance;
+
+struct ResourceBinding_t
+{
+	void* pData;           // 0x0
+	const char** szName;   // 0x8
+	char pad0[0x8];        // 0x10
+	int nRefCount;          // 0x18
+	char pad1[0x14];       // 0x1C
+}; // size: 0x30
+
+template <typename T>
+class CStrongHandle
+{
+public:
+	CStrongHandle() : pBinding(nullptr) {}
+
+	operator T* () const
+	{
+		return pBinding ? static_cast<T*>(pBinding->pData) : nullptr;
+	}
+
+	T* operator->() const
+	{
+		return pBinding ? static_cast<T*>(pBinding->pData) : nullptr;
+	}
+
+	ResourceBinding_t* pBinding = nullptr;
+};
+
 
 template <typename T = CEntityInstance>
 class CHandle
@@ -173,8 +202,32 @@ public:
 		return reinterpret_cast<U*>(getEntity(getEntryIndex()));
 	}
 };
+class c_model_state {
+public:
+	char pad001[160]; // some bone array here - 8
+	CStrongHandle<c_model> m_model_handle;
 
-class CSkeletonInstance;
+	OFFSET(__int64, m_unk, 0xD8);
+};
+class CSkeletonInstance {
+public:
+	char pad0[0x1AC];
+	int m_bone_count;
+	char pad1[0x18];
+	int m_mask;
+	char pad2[0x4];
+	Matrix2x4* m_bone_matrix;
+public:
+	void calc_world_space_bones(uint32_t mask){
+		using fn_t = void(__fastcall*)(void*, uint32_t);
+		static auto fn = reinterpret_cast<fn_t>(
+			PatternScan("client.dll",
+				CALCULATEWORLDSPACEBONES_PATTERN)
+			);
+		fn(this, mask);
+	}
+	SCHEMA(m_modelState, c_model_state, "CSkeletonInstance", "m_modelState");
+};
 class CMeshInstance_Imp;
 class CSceneAnimatableObjectDesc;
 class CSchemaClassInfo;
@@ -195,10 +248,15 @@ public:
 			fn(this, mask);
 		}
 	}
+	CSkeletonInstance* get_skeleton_instace() {
+		return MEM::CallVFunc<CSkeletonInstance*, 10>(this);
+	}
 	SCHEMA(m_child, C_GameSceneNode*, "CGameSceneNode", "m_pChild");
 	SCHEMA(m_next_sibling, C_GameSceneNode*, "CGameSceneNode", "m_pNextSibling");
 	SCHEMA(m_owner, CEntityInstance*, "CGameSceneNode", "m_pOwner");
 	SCHEMA(m_vecAbsOrigin, Vec3, "CGameSceneNode", "m_vecAbsOrigin");
+	SCHEMA(m_vecOrigin, Vec3, "CGameSceneNode", "m_vecOrigin");
+	SCHEMA(m_angAbsRotation, Vec3, "CGameSceneNode", "m_angAbsRotation");
 };
 class c_base_handle;
 class C_BaseEntity
@@ -341,33 +399,6 @@ public:
 
 	char pad3[0x14];                         // 0x54
 }; // sizeof = 0x68
-struct ResourceBinding_t
-{
-	void* pData;           // 0x0
-	const char** szName;   // 0x8
-	char pad0[0x8];        // 0x10
-	int nRefCount;          // 0x18
-	char pad1[0x14];       // 0x1C
-}; // size: 0x30
-
-template <typename T>
-class CStrongHandle
-{
-public:
-	CStrongHandle() : pBinding(nullptr) {}
-
-	operator T* () const
-	{
-		return pBinding ? static_cast<T*>(pBinding->pData) : nullptr;
-	}
-
-	T* operator->() const
-	{
-		return pBinding ? static_cast<T*>(pBinding->pData) : nullptr;
-	}
-
-	ResourceBinding_t* pBinding = nullptr;
-};
 
 class CTextureDx11
 {

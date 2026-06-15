@@ -57,7 +57,7 @@ bool IsAccurate(QAngle targetAngle, C_CSPlayerPawn* target, Vec3 start)
 			vDirection.NormalizeInPlace();
 			Vec3 vEnd = start + (vDirection * flWeaponRange);
 			return Interface::GetTraceManager()->ClipRayToEntity(&Ray, start, vEnd, target, &Filter, &GameTrace) &&
-				GameTrace.pHitEntity == target /*&& GameTrace.m_pHitboxData->m_nHitboxId == g_Rage->m_Data.m_LastTarget.m_hitboxData.m_nHitboxIndex*/;
+				GameTrace.m_pHitEntity == target /*&& GameTrace.m_pHitboxData->m_nHitboxId == g_Rage->m_Data.m_LastTarget.m_hitboxData.m_nHitboxIndex*/;
 		};
 
 	for (int nSeed = 0; nSeed < nWantedHitCount; nSeed++)

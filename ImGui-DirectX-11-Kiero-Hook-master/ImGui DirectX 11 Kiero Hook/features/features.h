@@ -12,6 +12,9 @@ namespace FEATURES {
 		namespace AUTOSTOP {
 			void onMove(CUserCmd* pCmd, bool want);
 		}
+		namespace STRAFE {
+			void subtick_air_strafer(bool stop);
+		}
 	}
 	
 	namespace SKINS {

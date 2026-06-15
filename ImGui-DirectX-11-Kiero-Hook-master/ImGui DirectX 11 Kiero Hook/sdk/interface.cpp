@@ -35,7 +35,9 @@ const char* IVEngineToClient::GetLevelNameShort()
     Fn Original = reinterpret_cast<Fn>(IVEngineToClient_Search::GetLevelNameShortFn);
     return Original(this);
 }
-
+c_network_channel* IVEngineToClient::GetNetChannelInfo(int split_slot = 0) {
+    return MEM::CallVFunc<c_network_channel*, 41U>(this, split_slot);
+}
 C_EconItemSystem* IEngine2Client::GetEconItemSystem()
 {
 	return MEM::CallVFunc<C_EconItemSystem*, 128>(this);
@@ -54,6 +56,7 @@ namespace Interface {
     static CreateInterfaceFn schemaFactory = nullptr;
     static CreateInterfaceFn inputFactory = nullptr;
 	static CreateInterfaceFn fileFactory = nullptr;
+    static CreateInterfaceFn tier0Factory = nullptr;
 
     static IVEngineToClient* eng = nullptr;
     static Tracing* tracing = nullptr;
@@ -66,6 +69,8 @@ namespace Interface {
     static IEngine2Client* eng2cl = nullptr;
     static C_GlobalVariables* vars = nullptr;
     static C_GameParticleManager* gamepart = nullptr;
+    static CEngineConvar* cvars = nullptr;
+    static CNetworkGameClientServices* netcl = nullptr;
 
     void Init()
     {
@@ -76,6 +81,7 @@ namespace Interface {
         resourceFactory = CaptureFactory("resourcesystem.dll");
 		inputFactory = CaptureFactory("inputsystem.dll");
         fileFactory = CaptureFactory("filesystem_stdio.dll");
+        tier0Factory = CaptureFactory("tier0.dll");
 
         schema = Get<ISchemaSystem>(schemaFactory, "SchemaSystem_001");
     }
@@ -221,6 +227,22 @@ namespace Interface {
             gamepart = *reinterpret_cast<C_GameParticleManager**>(addr);
         }
         return gamepart;
+    }
+
+    CEngineConvar* GetConVars()
+    {
+        if (!cvars) {
+            cvars = Get<CEngineConvar>(tier0Factory, "VEngineCvar007");
+        }
+        return cvars;
+    }
+
+    CNetworkGameClientServices* GetNetworkClientServices()
+    {
+        if (!netcl) {
+            netcl = Get<CNetworkGameClientServices>(engineFactory, "NetworkClientService_001");
+        }
+        return netcl;
     }
 
 }

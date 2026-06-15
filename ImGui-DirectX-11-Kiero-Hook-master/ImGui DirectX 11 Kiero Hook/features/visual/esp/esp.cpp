@@ -44,7 +44,7 @@ void Draw3DBox(const Vec3& origin, float width, float height,
 {
     float w = width * 0.5f;
 
-    // 8 точек бокса
+    // 8 пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     Vec3 points[8] = {
         {origin.x - w, origin.y - w, origin.z},
         {origin.x + w, origin.y - w, origin.z},
@@ -107,7 +107,83 @@ void drawBox(ImVec2 start, ImVec2 end, Vec3 origin, const float viewMatrix[4][4]
 }
 
 void drawHP(ImVec2 start, ImVec2 end, int health) {
+	if (!CFG::VISUAL::ESP::drawHealthBar) return;
 
+	float barWidth = 3.0f;
+	ImVec2 barStart = ImVec2(start.x - 5.0f, start.y);
+	ImVec2 barEnd = ImVec2(start.x - 2.0f, end.y);
+	
+	// Background
+	ImGui::GetBackgroundDrawList()->AddRect(barStart, barEnd, ImColor(0.0f, 0.0f, 0.0f, 1.0f), 0.0f, 0, 1.5f);
+	
+	// Health bar
+	float barHeight = barEnd.y - barStart.y;
+	float healthPercent = health / 100.0f;
+	float healthBarHeight = barHeight * healthPercent;
+	
+	ImVec2 healthEnd = ImVec2(barEnd.x, barEnd.y - healthBarHeight);
+	
+	ImU32 healthColor;
+	if (health > 75) healthColor = ImColor(0.0f, 1.0f, 0.0f, 1.0f);
+	else if (health > 50) healthColor = ImColor(1.0f, 1.0f, 0.0f, 1.0f);
+	else if (health > 25) healthColor = ImColor(1.0f, 0.5f, 0.0f, 1.0f);
+	else healthColor = ImColor(1.0f, 0.0f, 0.0f, 1.0f);
+	
+	ImGui::GetBackgroundDrawList()->AddRectFilled(healthEnd, barEnd, healthColor);
+	
+	// Health text
+	char healthText[16];
+	sprintf_s(healthText, "%d", health);
+	ImGui::GetBackgroundDrawList()->AddText(
+		ImGui::GetFont(),
+		ImGui::GetFontSize(),
+		ImVec2(start.x - 30.0f, start.y),
+		ImColor(1.0f, 1.0f, 1.0f, 1.0f),
+		healthText
+	);
+}
+
+void drawAmmo(ImVec2 start, ImVec2 end, C_CSPlayerPawn* player) {
+	//if (!CFG::VISUAL::ESP::drawAmmo || !player) return;
+
+	//// Get active weapon and ammo info
+	//CPlayer_WeaponServices* weaponServices = player->m_pWeaponServices();
+	//if (!weaponServices) return;
+
+	//C_CSWeaponBase* activeWeapon = (C_CSWeaponBase*)weaponServices->m_hActiveWeapon().get();
+	//if (!activeWeapon) return;
+
+	//int ammoInClip = activeWeapon->m_iClip1();
+	//int ammoInReserve = weaponServices->m_iAmmo()[0];
+
+	//char ammoText[32];
+	//sprintf_s(ammoText, "%d/%d", ammoInClip, ammoInReserve);
+
+	//ImGui::GetBackgroundDrawList()->AddText(
+	//	ImGui::GetFont(),
+	//	ImGui::GetFontSize(),
+	//	ImVec2(start.x, end.y + 3.0f),
+	//	ImColor(1.0f, 1.0f, 1.0f, 1.0f),
+	//	ammoText
+	//);
+}
+
+void drawNickname(ImVec2 start, C_CSPlayerPawn* player) {
+	if (!CFG::VISUAL::ESP::drawNickname || !player) return;
+
+	C_CSPlayerController* controller = (C_CSPlayerController*)player->m_hController().get();
+	if (!controller) return;
+
+	const char* nickname = controller->m_iszPlayerName();
+	if (!nickname) nickname = "Unknown";
+
+	ImGui::GetBackgroundDrawList()->AddText(
+		ImGui::GetFont(),
+		ImGui::GetFontSize(),
+		ImVec2(start.x, start.y - 15.0f),
+		ImColor(1.0f, 1.0f, 1.0f, 1.0f),
+		nickname
+	);
 }
 
 void FEATURES::VISUAL::ESP::onRender() {
@@ -156,8 +232,9 @@ void FEATURES::VISUAL::ESP::onRender() {
 			float y = screenHead.y;
 		
 			drawBox(ImVec2(x, y), ImVec2(x + width, y + height), feet, viewMatrix);
-
-
+			drawHP(ImVec2(x, y), ImVec2(x + width, y + height), health);
+			drawAmmo(ImVec2(x, y), ImVec2(x + width, y + height), playerPawn);
+			drawNickname(ImVec2(x, y), playerPawn);
 		}
 	}
 

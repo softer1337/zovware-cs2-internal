@@ -65,7 +65,7 @@ void Tracing::InitializeTraceInfo(CGameTrace* pGameTrace)
 void Tracing::GetTraceInfo(TraceData_t* trace, CGameTrace* hit, const float unknown_float, c_segment_holder* unknown) {
 	using GetTraceInfo_t = void(__fastcall*)(TraceData_t*, CGameTrace*, float, c_segment_holder*);
 	static GetTraceInfo_t fnGetTraceInfo = reinterpret_cast<GetTraceInfo_t>(PatternScan("client.dll", "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 48 8B E9 0F 29 74 24"));
-
+	__debugbreak();
 	return fnGetTraceInfo(trace, hit, unknown_float, unknown);
 }
 
@@ -80,7 +80,7 @@ void Tracing::CreateTrace(TraceData_t* const trace, const Vec3 start, const Vec3
 			int penetration_count,
 			bool unk
 			);
-	static CreateTrace_t fnCreateTrace = reinterpret_cast<CreateTrace_t>(PatternScan("client.dll", "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 41 56 41 57 48 83 EC 50 F2 0F 10 02"));
+	static CreateTrace_t fnCreateTrace = reinterpret_cast<CreateTrace_t>(PatternScan("client.dll", "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 50 F2 0F 10 02"));
 
 	fnCreateTrace(trace, start, end, filler, 4, true);
 }

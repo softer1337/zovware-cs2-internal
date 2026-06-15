@@ -6,6 +6,7 @@
 #include "bone.hpp"
 #include "mesh_sdk.h"
 #include "utl.hpp"
+#include "input/usercmd.h"
 
 class C_CSPlayerPawn;
 class C_CSPlayerController {
@@ -16,6 +17,14 @@ public:
     SCHEMA(m_hPlayerPawn, CHandle<C_CSPlayerPawn>, "CCSPlayerController", "m_hPlayerPawn");
     SCHEMA(m_sSanitizedPlayerName, CUtlString, "CCSPlayerController", "m_sSanitizedPlayerName");
     SCHEMA(m_iPawnHealth, uint32_t, "CCSPlayerController", "m_iPawnHealth");
+    SCHEMA(m_nTickBase, int32_t, "CBasePlayerController", "m_nTickBase");
+    SCHEMA(m_hPawn, CHandle<C_CSPlayerPawn>, "CBasePlayerController", "m_hPawn")
+    SCHEMA(m_iszPlayerName, const char*, "CBasePlayerController", "m_iszPlayerName");
+
+    CUserCmdManager* GetCmdManager() {
+        static uintptr_t addr = PatternScan("client.dll", "41 56 41 57 48 83 EC ? 48 8D 54 24");
+        return reinterpret_cast<CUserCmdManager * (__fastcall*)(C_CSPlayerController*)>(addr)(this);
+    }
 };
 class CPlayer_WeaponServices {
 public:
@@ -25,8 +34,9 @@ public:
 
 class CPlayer_ItemServices {
 public:
-	SCHEMA(m_bHasDefuser, bool, "CPlayer_ItemServices", "m_bHasDefuser");
-	SCHEMA(m_bHasHelmet, bool, "CPlayer_ItemServices", "m_bHasHelmet");
+	SCHEMA(m_bHasDefuser, bool, "CCSPlayer_ItemServices", "m_bHasDefuser");
+	SCHEMA(m_bHasHelmet, bool, "CCSPlayer_ItemServices", "m_bHasHelmet");
+    SCHEMA(m_bHasHeavyArmor, bool, "CCSPlayer_ItemServices", "m_bHasHeavyArmor");
 };
 
 class WeaponData_t {
@@ -34,10 +44,10 @@ public:
 	SCHEMA(m_flRange, float, "CCSWeaponBaseVData", "m_flRange");
 	SCHEMA(m_flHeadshotMultiplier, float, "CCSWeaponBaseVData", "m_flHeadshotMultiplier");
 	SCHEMA(m_flArmorRatio, float, "CCSWeaponBaseVData", "m_flArmorRatio");
-	SCHEMA(m_nDamage, int32_t, "CCSWeaponBaseVData", "m_nDamage");
+	SCHEMA(m_nDamage, int, "CCSWeaponBaseVData", "m_nDamage");
 	SCHEMA(m_flPenetration, float, "CCSWeaponBaseVData", "m_flPenetration");
 	SCHEMA(m_flRangeModifier, float, "CCSWeaponBaseVData", "m_flRangeModifier");
-	SCHEMA(m_nNumBullets, int32_t, "CCSWeaponBaseVData", "m_nNumBullets");
+	SCHEMA(m_nNumBullets, int, "CCSWeaponBaseVData", "m_nNumBullets");
 };
 
 struct WeaponInaccuracyData_t {
@@ -114,6 +124,11 @@ public:
 
 };
 
+class CPlayer_MovementServices {
+public:
+    SCHEMA(m_flSurfaceFriction, float, "CPlayer_MovementServices_Humanoid", "m_flSurfaceFriction");
+    SCHEMA(m_flStamina, float, "CCSPlayer_MovementServices", "m_flStamina");
+};
 
 class C_CSPlayerPawn {
 public:
@@ -130,7 +145,17 @@ public:
 	SCHEMA(m_vOldOrigin, Vec3, "C_BasePlayerPawn", "m_vOldOrigin");
 	SCHEMA(m_vecViewOffset, Vec3, "C_BaseModelEntity", "m_vecViewOffset");
     SCHEMA(m_hOriginalController, CHandle<C_CSPlayerController>, "C_CSPlayerPawnBase", "m_hOriginalController");
+    SCHEMA(m_hController, CHandle<C_CSPlayerController>, "C_CSPlayerPawnBase", "m_hController");
 
+    SCHEMA(m_nNoInterpolationTick, int32_t, "C_BaseEntity", "m_nNoInterpolationTick");
+    SCHEMA(m_bSimulationTimeChanged, bool, "C_BaseEntity", "m_bSimulationTimeChanged");
+    SCHEMA(m_flSimulationTime, float, "C_BaseEntity", "m_flSimulationTime");
+    SCHEMA(m_flOldSimulationTime, float, "C_BaseEntity", "m_flOldSimulationTime");
+    SCHEMA(m_lifeState, uint8_t, "C_BaseEntity", "m_lifeState");
+    SCHEMA(m_bGunGameImmunity, bool, "C_CSPlayerPawn", "m_bGunGameImmunity");
+    SCHEMA(m_nActualMoveType, int, "C_BaseEntity", "m_nActualMoveType");
+
+    SCHEMA(m_pMovementServices, CPlayer_MovementServices*, "C_BasePlayerPawn", "m_pMovementServices");
     SCHEMA(m_pWeaponServices, CPlayer_WeaponServices*, "C_BasePlayerPawn", "m_pWeaponServices");
 
     SCHEMA(m_pGameSceneNode, C_GameSceneNode*, "C_BaseEntity", "m_pGameSceneNode");
@@ -156,5 +181,38 @@ public:
         return reinterpret_cast<C_CSPlayerController*>(
             Interface::GetEntitySystem()->getLocalController()
             );
+    }
+    void set_velocity(Vec3* velocity) {
+        using SetVelocity_t = void(__fastcall*)(C_CSPlayerPawn*, Vec3*);
+        static SetVelocity_t set_vel = (SetVelocity_t)PatternScan("client.dll", "48 89 5C 24 ? 48 89 6C 24 ? 48 89 74 24 ? 57 48 83 EC ? 80 B9 ? ? ? ? ? 48 8B EA");
+
+        set_vel(this, velocity);
+        
+    }
+    float get_some_timing(int idx0, int idx1)
+    {
+        using GetSomeTiming_t = float(__fastcall*)(C_CSPlayerPawn*, int, int);
+
+        static GetSomeTiming_t get_some_timing =
+            (GetSomeTiming_t)PatternScan(
+                "client.dll",
+                "48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC ? 49 63 D8 48 8B F1"
+            );
+
+        return get_some_timing(this, idx0, idx1);
+    }
+    bool is_enemy() {
+        C_CSPlayerPawn* local_pawn = (C_CSPlayerPawn*)Interface::GetEntitySystem()->getLocalPawn();
+
+        if (!local_pawn)
+            return true;
+
+        if (this == local_pawn)
+            return false;
+
+        return this->m_iTeamNum() != local_pawn->m_iTeamNum();
+    }
+    bool is_alive() {
+        return m_iHealth() > 0 && m_lifeState() == 0U;
     }
 };

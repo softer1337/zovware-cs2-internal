@@ -7,117 +7,9 @@
 #include <limits>
 #include <string>
 #include "../qangle.h"
-
-
-#define MULTIPLAYER_BACKUP 150
-#define FL_ONGROUND             (1 << 0)   // 1
-#define FL_DUCKING              (1 << 1)   // 2
-#define FL_WATERJUMP            (1 << 2)   // 4
-#define FL_ON_TRAIN             (1 << 3)   // 8
-#define FL_IN_RAIN              (1 << 4)   // 16
-#define FL_FROZEN               (1 << 5)   // 32
-#define FL_AT_CONTROLS          (1 << 6)   // 64
-#define FL_CLIENT               (1 << 7)   // 128
-#define FL_FAKE_CLIENT          (1 << 8)   // 256
-
-
-enum ECommandButtons : int
-{
-	IN_ATTACK = (1 << 0),
-	IN_JUMP = (1 << 1),
-	IN_DUCK = (1 << 2),
-	IN_FORWARD = (1 << 3),
-	IN_BACK = (1 << 4),
-	IN_USE = (1 << 5),
-	IN_CANCEL = (1 << 6),
-	IN_LEFT = (1 << 7),
-	IN_RIGHT = (1 << 8),
-	IN_MOVELEFT = (1 << 9),
-	IN_MOVERIGHT = (1 << 10),
-	IN_SECOND_ATTACK = (1 << 11),
-	IN_RUN = (1 << 12),
-	IN_RELOAD = (1 << 13),
-	IN_LEFT_ALT = (1 << 14),
-	IN_RIGHT_ALT = (1 << 15),
-	IN_SCORE = (1 << 16),
-	IN_SPEED = (1 << 17),
-	IN_WALK = (1 << 18),
-	IN_ZOOM = (1 << 19),
-	IN_FIRST_WEAPON = (1 << 20),
-	IN_SECOND_WEAPON = (1 << 21),
-	IN_BULLRUSH = (1 << 22),
-	IN_FIRST_GRENADE = (1 << 23),
-	IN_SECOND_GRENADE = (1 << 24),
-	IN_MIDDLE_ATTACK = (1 << 25),
-	IN_USE_OR_RELOAD = (1 << 26)
-};
-
-enum ESubtickMoveStepBits : std::uint32_t
-{
-	MOVESTEP_BITS_BUTTON = 0x1U,
-	MOVESTEP_BITS_PRESSED = 0x2U,
-	MOVESTEP_BITS_WHEN = 0x4U,
-	MOVESTEP_BITS_ANALOG_FORWARD_DELTA = 0x8U,
-	MOVESTEP_BITS_ANALOG_LEFT_DELTA = 0x10U
-};
-
-enum EInputHistoryBits : std::uint32_t
-{
-	INPUT_HISTORY_BITS_VIEWANGLES = 0x1U,
-	INPUT_HISTORY_BITS_SHOOTPOSITION = 0x2U,
-	INPUT_HISTORY_BITS_TARGETHEADPOSITIONCHECK = 0x4U,
-	INPUT_HISTORY_BITS_TARGETABSPOSITIONCHECK = 0x8U,
-	INPUT_HISTORY_BITS_TARGETANGCHECK = 0x10U,
-	INPUT_HISTORY_BITS_CL_INTERP = 0x20U,
-	INPUT_HISTORY_BITS_SV_INTERP0 = 0x40U,
-	INPUT_HISTORY_BITS_SV_INTERP1 = 0x80U,
-	INPUT_HISTORY_BITS_PLAYER_INTERP = 0x100U,
-	INPUT_HISTORY_BITS_RENDERTICKCOUNT = 0x200U,
-	INPUT_HISTORY_BITS_RENDERTICKFRACTION = 0x400U,
-	INPUT_HISTORY_BITS_PLAYERTICKCOUNT = 0x800U,
-	INPUT_HISTORY_BITS_PLAYERTICKFRACTION = 0x1000U,
-	INPUT_HISTORY_BITS_FRAMENUMBER = 0x2000U,
-	INPUT_HISTORY_BITS_TARGETENTINDEX = 0x4000U
-};
-
-enum EButtonStatePBBits : uint32_t
-{
-	BUTTON_STATE_PB_BITS_BUTTONSTATE1 = 0x1U,
-	BUTTON_STATE_PB_BITS_BUTTONSTATE2 = 0x2U,
-	BUTTON_STATE_PB_BITS_BUTTONSTATE3 = 0x4U
-};
-
-enum EBaseCmdBits : std::uint32_t
-{
-	BASE_BITS_MOVE_CRC = 0x1U,
-	BASE_BITS_BUTTONPB = 0x2U,
-	BASE_BITS_VIEWANGLES = 0x4U,
-	BASE_BITS_COMMAND_NUMBER = 0x8U,
-	BASE_BITS_CLIENT_TICK = 0x10U,
-	BASE_BITS_FORWARDMOVE = 0x20U,
-	BASE_BITS_LEFTMOVE = 0x40U,
-	BASE_BITS_UPMOVE = 0x80U,
-	BASE_BITS_IMPULSE = 0x100U,
-	BASE_BITS_WEAPON_SELECT = 0x200U,
-	BASE_BITS_RANDOM_SEED = 0x400U,
-	BASE_BITS_MOUSEDX = 0x800U,
-	BASE_BITS_MOUSEDY = 0x1000U,
-	BASE_BITS_CONSUMED_SERVER_ANGLE = 0x2000U,
-	BASE_BITS_CMD_FLAGS = 0x4000U,
-	BASE_BITS_ENTITY_HANDLE = 0x8000U
-};
-
-enum ECSGOUserCmdBits : std::uint32_t
-{
-	CSGOUSERCMD_BITS_BASECMD = 0x1U,
-	CSGOUSERCMD_BITS_LEFTHAND = 0x2U,
-	CSGOUSERCMD_BITS_PREDICTING_BODY_SHOT = 0x4U,
-	CSGOUSERCMD_BITS_PREDICTING_HEAD_SHOT = 0x8U,
-	CSGOUSERCMD_BITS_PREDICTING_KILL_RAGDOLLS = 0x10U,
-	CSGOUSERCMD_BITS_ATTACK3START = 0x20U,
-	CSGOUSERCMD_BITS_ATTACK1START = 0x40U,
-	CSGOUSERCMD_BITS_ATTACK2START = 0x80U
-};
+#include "../../core/mem.hpp"
+#include "../enums.h"
+#include "../../core/hooks/hooks.h"
 
 template <typename T>
 struct RepeatedPtrField_t
@@ -132,6 +24,36 @@ struct RepeatedPtrField_t
 	int nCurrentSize;
 	int nTotalSize;
 	Rep_t* pRep;
+
+	T* operator[](int index)
+	{
+		return pRep->tElements[index];
+	}
+
+	const T* operator[](int index) const
+	{
+		return pRep->tElements[index];
+	}
+
+	inline int& size() {
+		return nCurrentSize;
+	}
+
+	inline int& capacity() {
+		return nTotalSize;
+	}
+
+	inline int& max_size() {
+		return pRep->nAllocatedSize;
+	}
+	inline operator bool() const {
+		return pRep != nullptr;
+	}
+	T* add(T* element) {
+		using fn_add_to_container = T * (__fastcall*)(RepeatedPtrField_t*, T*);
+		static auto fn = reinterpret_cast<fn_add_to_container>( PatternScan("client.dll", "48 89 5C 24 ? 57 48 83 EC ? 48 8B D9 48 8B FA 48 8B 49 ? 48 85 C9 74 ? 8B 01"));
+		return fn(this, element);
+	}
 };
 
 class CBasePB
@@ -190,16 +112,7 @@ public:
 	int nFrameNumber; // 0x70
 	int nTargetEntIndex; // 0x74
 };
-enum e_button_state : int8_t {
-	in_button_up = 0,
-	in_button_down = 1,
-	in_button_down_up = 2,
-	in_button_up_down = 3,
-	in_button_up_down_up = 4,
-	in_button_down_up_down = 5,
-	in_button_down_up_down_up = 6,
-	in_button_up_down_up_down = 7
-};
+
 struct CInButtonStatePB : CBasePB
 {
 	std::uint64_t nValue;
@@ -269,25 +182,47 @@ public:
 	float flWhen;
 	float flAnalogForwardDelta;
 	float flAnalogLeftDelta;
+	float m_analog_pitch_delta;
+	float m_analog_yaw_delta;
+
+	void set_button(const uint64_t& button) {
+		nButton = button;
+		set_bits(e_protobuf_bits_t::protoslot_1);
+	}
+
+	void set_pressed(const bool& pressed) {
+		bPressed = pressed;
+		set_bits(e_protobuf_bits_t::protoslot_2);
+	}
+
+	void set_when(const float& when) {
+		flWhen = when;
+		set_bits(e_protobuf_bits_t::protoslot_3);
+	}
+
+	void set_analog_forward_delta(const float& forward_delta) {
+		flAnalogForwardDelta = forward_delta;
+		set_bits(e_protobuf_bits_t::protoslot_4);
+	}
+
+	void set_analog_left_delta(const float& analog_left_delta) {
+		flAnalogLeftDelta = analog_left_delta;
+		set_bits(e_protobuf_bits_t::protoslot_5);
+	}
+
+	void set_analog_pitch_delta(const float& analog_pitch_delta) {
+		m_analog_pitch_delta = analog_pitch_delta;
+		set_bits(e_protobuf_bits_t::protoslot_6);
+	}
+
+	void set_analog_yaw_delta(const float& analog_yaw_delta) {
+		m_analog_yaw_delta = analog_yaw_delta;
+		set_bits(e_protobuf_bits_t::protoslot_7);
+	}
 };
-enum e_protobuf_bits_t : uint32_t {
-	protoslot_1 = 1 << 0,
-	protoslot_2 = 1 << 1,
-	protoslot_3 = 1 << 2,
-	protoslot_4 = 1 << 3,
-	protoslot_5 = 1 << 4,
-	protoslot_6 = 1 << 5,
-	protoslot_7 = 1 << 6,
-	protoslot_8 = 1 << 7,
-	protoslot_9 = 1 << 8,
-	protoslot_10 = 1 << 9,
-	protoslot_11 = 1 << 10,
-	protoslot_12 = 1 << 11,
-	protoslot_13 = 1 << 12,
-	protoslot_14 = 1 << 13,
-	protoslot_15 = 1 << 14,
-	protoslot_16 = 1 << 15
-};
+
+static_assert(sizeof(CSubtickMoveStep) == 56);
+
 class CBaseUserCmdPB : public CBasePB
 {
 public:
@@ -309,6 +244,21 @@ public:
 	std::int32_t nCmdFlags;
 	std::uint32_t nPawnEntityHandle;
 
+	CSubtickMoveStep* create_subtick_move()
+	{
+		if (subtickMovesField && subtickMovesField.size() < subtickMovesField.max_size())
+			return subtickMovesField[subtickMovesField.size()++];
+
+		using fn_create_subtick_move = CSubtickMoveStep * (__fastcall*)(void*);
+
+		static uintptr_t addr = PatternScan("client.dll",CREATENEWSUBTICKMOVESTEP_PATTERN);
+		static auto fn = reinterpret_cast<fn_create_subtick_move>(addr);
+
+		CSubtickMoveStep* subtick_move = fn(subtickMovesField.pArena);
+		subtickMovesField.add(subtick_move);
+
+		return subtick_move;
+	}
 
 	void set_legacy_command_number(const int& value) {
 		nLegacyCommandNumber = value;
@@ -380,6 +330,7 @@ public:
 class CCSGOUserCmdPB
 {
 public:
+	void* vtable;
 	std::uint32_t nHasBits; //0x0
 	std::uint64_t nCachedSize; //0x4
 	RepeatedPtrField_t<CCSGOInputHistoryEntryPB> inputHistoryField; //0xC
@@ -398,12 +349,13 @@ public:
 			nHasBits |= nBits;
 	}
 };
-
+static_assert(sizeof(CCSGOUserCmdPB) == 0x48); // 72 байта
 
 
 struct CInButtonState
 {
 public:
+	void* m_vtable;
 	std::uint64_t nValue; // 0x8
 	std::uint64_t nValueChanged; // 0x10
 	std::uint64_t nValueScroll; // 0x18
@@ -411,16 +363,16 @@ public:
 
 class CUserCmd {
 public:
-	char pad01[0x8];
-	char pad02[0x10];
-	CCSGOUserCmdPB csgoUserCmd; // 0x18
-
-	// 0x18 + sizeof(CCSGOUserCmdPB) = 0x60
-	char pad_buttons[0x60 - 0x18 - sizeof(CCSGOUserCmdPB)];
-
+	void* vtable;
+	int m_sequence_number;
+	CCSGOUserCmdPB csgoUserCmd;
 	CInButtonState nButtons;
-
-	char pad03[0x20];
+	char pad1[8];
+	double m_real_time;
+	float m_curtime;
+	bool m_has_been_predicted;
+	int m_previous_flags;
+	int m_current_flags;
 
 	CCSGOInputHistoryEntryPB* GetInputHistoryEntry(int nIndex) {
 		if (nIndex >= csgoUserCmd.inputHistoryField.pRep->nAllocatedSize || nIndex >= csgoUserCmd.inputHistoryField.nCurrentSize)
@@ -446,7 +398,19 @@ public:
 		return csgoUserCmd.pBaseCmd->pInButtonState->nValue & button;
 	}
 };
+static_assert(sizeof(CUserCmd) == 0x98);
 
+
+class c_cs_input_message {
+public:
+	int32_t m_render_tick_count; //0x0000
+	float m_render_tick_fraction; //0x0004
+	int32_t m_player_tick_count; //0x0008
+	float m_player_tick_fraction; //0x000C
+	Vec3 m_view_angles; //0x0010
+	Vec3 m_origin; //0x001C
+	char pad_0028[56]; //0x0028
+}; //Size: 0x0060
 
 class CCSGOInput
 {
@@ -478,4 +442,26 @@ public:
 	int32_t message_size; //0x0620
 	char pad_0624[0x4]; //0x0624
 	void* message;//c_cs_input_message* message; //0x0628
+};
+
+class CUserCmdManager
+{
+public:
+	CUserCmd m_commands[150]; //0x0000
+	//c_user_cmd m_global_cmd; //0x5910
+	int32_t m_sequence; //0x59A8
+	char pad_59AC[4]; //0x59AC
+	double m_real_time; //0x59B0
+	char pad_59B8[2080]; //0x59B8
+
+	CUserCmd* get_cmd()
+	{
+		return &m_commands[m_sequence % 150];
+	}
+
+	CUserCmd* get_cmd_by_sequence(int sequence)
+	{
+		return &m_commands[sequence % 150];
+	}
+
 };

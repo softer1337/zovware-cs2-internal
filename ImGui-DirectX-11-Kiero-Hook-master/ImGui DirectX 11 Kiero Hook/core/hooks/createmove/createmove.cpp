@@ -7,6 +7,7 @@
 #include "../../../kiero/minhook/include/MinHook.h"
 #include "../hooks.h"
 #include "../../../sdk/ctx.hpp"
+#include "../../../features/entity/lag comp/lag_comp.h"
 
 using CreateMoveFn = double(__fastcall*)(void* a1, unsigned int a2, CUserCmd* pCmd);
 inline CreateMoveFn oCreateMove = nullptr;
@@ -17,13 +18,16 @@ double __fastcall hkCreateMove(void* a1, unsigned int a2, CUserCmd* pCmd)
     if (!g_state.running || g_state.unloading)
         return res;
 
-    if (!context->update())
+    if (!context->update(pCmd))
         return res;
 
     FEATURES::MOVEMENT::BHOP::onMove(pCmd);
     FEATURES::AIM::LEGITBOT::onMove(pCmd);
 	FEATURES::AIM::RAGEBOT::onMove(pCmd);
     FEATURES::MOVEMENT::AUTOSTOP::onMove(pCmd, CFG::AIM::RAGEBOT::internal_wantsStop);
+    //FEATURES::MOVEMENT::STRAFE::subtick_air_strafer(CFG::AIM::RAGEBOT::internal_wantsStop);
+
+    //LagCompensation->force_input_history();
 
     return res;
 }

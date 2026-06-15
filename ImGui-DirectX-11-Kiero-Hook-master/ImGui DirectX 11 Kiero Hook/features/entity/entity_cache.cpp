@@ -27,10 +27,11 @@ void FEATURES::ENTITY::onAddEntity(c_base_handle handle, CEntityInstance* inst) 
 		CachedPlayer_t cached_player;
 
 		cached_player.index = idx;
-		cached_player.controller = nullptr;
+		cached_player.controller = Interface::GetEntitySystem()->getBaseBntity<C_CSPlayerController>(((C_CSPlayerPawn*)ent)->m_hOriginalController().getEntryIndex());
 		cached_player.pawn = ((C_CSPlayerPawn*)ent);
 
 
+		// доделать под контроллер и закончить кэщ
 		CachedPlayers.push_back(cached_player);
 	}
 }

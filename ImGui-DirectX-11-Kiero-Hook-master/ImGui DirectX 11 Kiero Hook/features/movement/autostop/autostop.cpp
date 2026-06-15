@@ -2,12 +2,7 @@
 #include "../../../sdk/c_csplayerpawn.hpp"
 #include "../../../sdk/ctx.hpp"
 
-constexpr double A_PI = 3.14159265358979323846;
-constexpr double A_2PI = A_PI * 2.f;
-constexpr double A_HALFPI = A_PI / 2.f;
 
-constexpr double A_RAD2DEG = 180.0 / A_PI;
-constexpr double A_DEG2RAD = A_PI / 180.0;
 
 Vec3 calculate_angle(const Vec3& origin, const Vec3& destination) {
 	Vec3 delta = destination - origin;

@@ -20,65 +20,48 @@ public:
 class CHitBox
 {
 public:
-	const char* szName; // 0x0
-	const char* szSurfaceProperty; // 0x8
-	const char* szBoneName; // 0x10
-	Vec3 vecMinBounds; // 0x18
-	Vec3 vecMaxBounds; // 0x24
-	float flShapeRadius; // 0x30
-	uint32_t uBoneNameHash; // 0x34
-	int nGroupId; // 0x38
-	uint8_t nShapeType; // 0x3C
-	bool bTranslationOnly; // 0x3D	
-private:
-	char pad0[2];
-public:
-	uint32_t uCRC; // 0x40	
-	uint32_t colRender; // 0x44	
-	uint16_t nHitBoxIndex; // 0x48	
+	char        _pad_0000[0x38];           // 0x00
+	int32_t     m_hitgroup;                // 0x38
+	char        _pad_003c[0x04];           // 0x3C
+	int32_t     m_hitbox_id;               // 0x40
+	char        _pad_0044[0x5C];           // 0x44
 };
 
 
+struct alignas(16) CGameTrace {
+	void* m_p_surface;              // 0x00
+	C_CSPlayerPawn* m_pHitEntity;             // 0x08 
+	CHitBox* m_p_hitbox_data;          // 0x10
+	char             _pad1[0x38];              // 0x18
+	uint32_t         m_contents;               // 0x50
+	char             _pad2[0x24];              // 0x54
+	Vec3           m_start_pos;              // 0x78
+	Vec3           m_end_pos;                // 0x84
+	Vec3           m_normal;                 // 0x90
+	Vec3           m_pos;                    // 0x9C
+	char             _pad3[4];                 // 0xA8
+	float            fraction;                 // 0xAC
+	int32_t          m_debug_or_surface_index; // 0xB0
+	uint16_t         m_hitbox_bone_or_index;   // 0xB4
+	uint8_t          m_ray_type;               // 0xB6
+	uint8_t          m_hit_flag;               // 0xB7
+	char             _pad_tail[0x88];          // 0xB8
 
-class CGameTrace
-{
-public:
-	void* pSurfaceProperties;
-	C_CSPlayerPawn* pHitEntity;
-	CHitBox* pHitBox;
-private:
-	char pad_0x38[0x10];
-public:
-	uint32_t nSurfaceFlags;
-private:
-	char pad_0x24[0x4A];
-public:
-	Vec3 vecStart;
-	Vec3 vecEnd;
-	Vec3 vecNormal;
-	Vec3 vecPosition;
-private:
-	char pad_0x4[0x4];
-public:
-	float flFraction;
-private:
-	char pad_0x6[0x12];
-public:
-	bool m_all_solid;
-private:
-	char pad_0x9[0x4D];
-public:
-
+	inline void Zero() {
+		std::memset(this, 0, sizeof(CGameTrace));
+	}
 	inline bool DidHit() const
 	{
-		return (flFraction < 1.0f || m_all_solid);
+		return (fraction < 1.0f);
 	}
 
 	inline bool IsVisible() const
 	{
-		return (flFraction > 0.97f);
+		return (fraction > 0.97f);
 	}
+
 };
+static_assert(sizeof(CGameTrace) == 0x140, "CGameTrace size mismatch");
 
 struct TraceArrElement_t
 {

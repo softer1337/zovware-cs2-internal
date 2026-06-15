@@ -86,6 +86,12 @@ namespace MENU {
         colors[ImGuiCol_Text] = ImVec4(0.92f, 0.92f, 0.94f, 1.0f);
         colors[ImGuiCol_CheckMark] = ImVec4(0.40f, 0.60f, 0.80f, 1.0f);
 
+        static constexpr int bone_indices[19] = { 6, 5, 0, 1, 2, 3, 4, 22, 25, 23, 26, 24, 27, 10, 15, 8, 9, 13, 14 };
+        for (int i = 0; i < 19; ++i)
+            CFG::AIM::RAGEBOT::m_hitboxes.push_back(bone_indices[i]);
+        
+        CFG::AIM::RAGEBOT::m_multipointed_hitboxes.push_back(6);
+
         LoadFont();
         if (myFont) ImGui::GetIO().FontDefault = myFont;
 
@@ -105,6 +111,7 @@ namespace MENU {
             if (ImGui::BeginTabItem("Misc"))
             {
                 ImGui::Checkbox("Bhop", &CFG::MOVEMENT::isBhopEnabled);
+                ImGui::Checkbox("Auto Strafer", &CFG::MOVEMENT::isAutoStraferEnabled);
 
                 ImGui::Checkbox("Viewmodel", &CFG::VISUAL::VIEWMODEL::isViewModelEnabled);
 
@@ -296,6 +303,12 @@ namespace MENU {
 
                 ImGui::ColorEdit4("Color", (float*)&CFG::VISUAL::ESP::espColor);
 
+                ImGui::Separator();
+                ImGui::Text("Overlay Options:");
+                ImGui::Checkbox("Draw Health Bar", &CFG::VISUAL::ESP::drawHealthBar);
+                ImGui::Checkbox("Draw Ammo", &CFG::VISUAL::ESP::drawAmmo);
+                ImGui::Checkbox("Draw Nickname", &CFG::VISUAL::ESP::drawNickname);
+
                 ImGui::EndTabItem();
             }
 
@@ -322,6 +335,36 @@ namespace MENU {
                         ImGui::ColorEdit4("Arms Color", (float*)&CFG::VISUAL::CHAMS::chamsArmsColor, ImGuiColorEditFlags_NoInputs);
 
                         ImGui::Combo("Material", (int*)&CFG::VISUAL::CHAMS::curArmsMat,
+                            "Flat\0Solid\0Bloom\0Glow\0Ghost\0Latex\0\0");
+                    }
+
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("Chams HUD Weapon"))
+                {
+                    ImGui::Checkbox("Enable HUD Weapon Chams", &CFG::VISUAL::CHAMS::isHudWeaponEnabled);
+
+                    if (CFG::VISUAL::CHAMS::isHudWeaponEnabled)
+                    {
+                        ImGui::ColorEdit4("HUD Weapon Color", (float*)&CFG::VISUAL::CHAMS::chamsHudWeaponColor, ImGuiColorEditFlags_NoInputs);
+
+                        ImGui::Combo("Material##hudweapon", (int*)&CFG::VISUAL::CHAMS::curHudWeaponMat,
+                            "Flat\0Solid\0Bloom\0Glow\0Ghost\0Latex\0\0");
+                    }
+
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("Chams Weapon"))
+                {
+                    ImGui::Checkbox("Enable Weapon Chams", &CFG::VISUAL::CHAMS::isWeaponEnabled);
+
+                    if (CFG::VISUAL::CHAMS::isWeaponEnabled)
+                    {
+                        ImGui::ColorEdit4("Weapon Color", (float*)&CFG::VISUAL::CHAMS::chamsWeaponColor, ImGuiColorEditFlags_NoInputs);
+
+                        ImGui::Combo("Material##weapon", (int*)&CFG::VISUAL::CHAMS::curWeaponMat,
                             "Flat\0Solid\0Bloom\0Glow\0Ghost\0Latex\0\0");
                     }
 

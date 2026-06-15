@@ -2,6 +2,8 @@
 #include <cstdint>
 #include "../imgui/imgui.h"
 #include "../sdk/math.hpp"
+#include <vector>
+#include "aim/rage/penetration.h"
 
 enum class EspType {
 	BOX,
@@ -18,6 +20,22 @@ enum class ChamsMat {
 	LATEX
 };
 
+class lag_record_t;
+
+struct scan_result_t {
+	Vec3 m_start, m_point, m_angle;
+	bool m_extrapolated_local;
+	lag_record_t* m_record;
+	c_hitbox_data* m_hitbox;
+	int m_damage, m_damage_threshold;
+	float m_world_dist, m_history_delta;
+	float m_point_projected_radius;
+	c_penetration::player_context_t* m_penetration_context;
+
+	//bool valid_target();
+	//scan_result_t compare_player_internal(scan_result_t& other);
+	//scan_result_t compare_players(scan_result_t& other);
+};
 struct knife_changer_t {
 	bool m_enabled = false;
 	int m_knife = 0;
@@ -57,6 +75,7 @@ struct skin_changer_t {
 namespace CFG {
 	namespace MOVEMENT {
 		inline bool isBhopEnabled = false;
+		inline bool isAutoStraferEnabled = false;
 	}
 	namespace SKINS {
 		inline bool isSkinsEnabled = true;
@@ -68,6 +87,9 @@ namespace CFG {
 			inline bool isEspEnabled = false;
 			inline ImColor espColor = ImColor(1.f, 0.f, 0.f, 1.f);
 			inline EspType espType = EspType::BOX;
+			inline bool drawHealthBar = true;
+			inline bool drawAmmo = true;
+			inline bool drawNickname = true;
 		}
 		namespace MODELCHANGER {
 			inline bool isModelChangerEnabled = false;
@@ -88,6 +110,14 @@ namespace CFG {
 			inline bool isArmsEnabled = false;
 			inline ImColor chamsArmsColor = ImColor(1.f, 1.f, 1.f, 1.f);
 			inline ChamsMat curArmsMat = ChamsMat::BLOOM;
+
+			inline bool isHudWeaponEnabled = false;
+			inline ImColor chamsHudWeaponColor = ImColor(1.f, 1.f, 1.f, 1.f);
+			inline ChamsMat curHudWeaponMat = ChamsMat::SOLID;
+
+			inline bool isWeaponEnabled = false;
+			inline ImColor chamsWeaponColor = ImColor(1.f, 1.f, 1.f, 1.f);
+			inline ChamsMat curWeaponMat = ChamsMat::SOLID;
 
 			inline bool isInvisEnabled = true;
 			inline bool isVisEnabled = true;
@@ -125,7 +155,10 @@ namespace CFG {
 			inline int minDamage = 1;
 			inline float fov = 5.f;
 			inline int hitChance = 71;
+			inline int pointScale = 100;
+			inline std::vector<int> m_hitboxes, m_multipointed_hitboxes;
 
+			inline scan_result_t internal_scanRes{};
 			inline bool internal_wantsStop = false;
 		}
 	}
