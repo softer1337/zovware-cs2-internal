@@ -19,7 +19,7 @@ public:
     int                     index = 0;
 
     bool check_and_update_pawn() {
-        if (!pawn) { printf("pawn is null"); return false; }
+        if (!pawn) { return false; }
         //pawn = Interface::GetEntitySystem()
         //    ->getBaseBntity<C_CSPlayerPawn>(controller->m_hPawn().getEntryIndex());
         return (pawn != nullptr);
@@ -30,31 +30,15 @@ public:
         __forceinline bool is_valid() { return m_valid; }
         __forceinline void validate() { m_valid = true; }
         __forceinline void invalidate() { 
-            m_lag_records.clear(); m_valid = false;         printf(
-                "[invalidate] size=%zu\n",
-                m_lag_records.size()
-            );
-        }
+            m_lag_records.clear(); m_valid = false;}
         __forceinline void add_record(lag_record_t record) {
-            printf(
-                "[add_record] before=%zu sim=%.6f\n",
-                m_lag_records.size(),
-                record.m_simulation_time
-            );
-
             m_lag_records.push_back(record);
-
-            printf(
-                "[add_record] after=%zu\n",
-                m_lag_records.size()
-            );
-
             validate();
         }
         __forceinline void remove_oldest() { m_lag_records.pop_front(); }
 
     private:
-        bool m_valid;
+        bool m_valid = true;
     };
     lag_compensation_data_t                        m_lagcomp_data = {};
     c_penetration::player_context_t         m_penetration_context = {};

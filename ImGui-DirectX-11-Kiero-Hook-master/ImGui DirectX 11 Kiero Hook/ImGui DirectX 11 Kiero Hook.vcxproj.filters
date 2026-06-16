@@ -180,6 +180,12 @@
     <ClCompile Include="features\movement\strafer\strafe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="core\hooks\lightupdate\lightupdate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="features\visual\world\worldcolor\light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="kiero\minhook\dll_resources\MinHook.rc">
@@ -404,6 +410,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="features\aim\hitbox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\hooks\lightupdate\lightupdate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -65,10 +65,12 @@ inline Color_t ImColorToColor(const ImVec4& c)
 struct CSkyBoxSceneObject
 {
 public:
-	char pad_0000[0x110]; //0x0
-	void** mat; // 0x110
-	char pad_0118[0x10]; //0x118
-	Vec3 skyColor;
+	char pad0[0xE8];
+	Vec3 skyColor; // 0x0E8
+	char pad1[28];
+	void** m_material; // 0x110
+	char pad2[0x10]; //0x118
+	ImColor m_color; //0x0128
 };
 
 
@@ -762,4 +764,12 @@ class CNetworkUtlVector {
 public:
 	unsigned int m_size;
 	T* m_elements;
+};
+
+
+class C_LightScene
+{
+public:
+	char pad[0xE4]; // 0x0
+	ImColor m_color; // 0xE4
 };

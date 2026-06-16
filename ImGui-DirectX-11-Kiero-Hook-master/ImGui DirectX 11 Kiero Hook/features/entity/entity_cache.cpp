@@ -45,7 +45,6 @@ void FEATURES::ENTITY::onRemoveEntity(c_base_handle handle, CEntityInstance* ins
 	for (auto it = CachedPlayers.begin(); it != CachedPlayers.end(); ++it) {
 		if (it->index == idx) {
 			CachedPlayers.erase(it);
-			printf("removed\n");
 			break;
 		}
 	}

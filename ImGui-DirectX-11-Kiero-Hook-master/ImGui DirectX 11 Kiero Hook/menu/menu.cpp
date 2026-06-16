@@ -356,7 +356,7 @@ namespace MENU {
                     ImGui::TreePop();
                 }
 
-                if (ImGui::TreeNode("Chams Weapon"))
+                /*if (ImGui::TreeNode("Chams Weapon"))
                 {
                     ImGui::Checkbox("Enable Weapon Chams", &CFG::VISUAL::CHAMS::isWeaponEnabled);
 
@@ -369,7 +369,7 @@ namespace MENU {
                     }
 
                     ImGui::TreePop();
-                }
+                }*/
 
                 ImGui::EndTabItem();
             }
@@ -383,8 +383,8 @@ namespace MENU {
                 ImGui::ColorEdit3("Sky Color", (float*)&CFG::VISUAL::WORLD::skyboxColor);
 
                 ImGui::Separator();
-                ImGui::Text("Custom Skybox Material");
-                ImGui::Checkbox("Enable Custom Skybox", &CFG::VISUAL::WORLD::isCustomSkyboxEnabled);
+                //ImGui::Text("Custom Skybox Material");
+                //ImGui::Checkbox("Enable Custom Skybox", &CFG::VISUAL::WORLD::isCustomSkyboxEnabled);
 
                 if (CFG::VISUAL::WORLD::isCustomSkyboxEnabled)
                 {
@@ -401,11 +401,14 @@ namespace MENU {
                 ImGui::Checkbox("Smoke", &CFG::VISUAL::WORLD::isSmokeEnabled);
                 ImGui::ColorEdit3("Smoke Color", (float*)&CFG::VISUAL::WORLD::smokeColor);
 
-                ImGui::Checkbox("World Modulation", &CFG::VISUAL::WORLD::isWorldModulationEnabled);
+                ImGui::Checkbox("World modulation", &CFG::VISUAL::WORLD::isWorldModulationEnabled);
                 ImGui::ColorEdit3("World Color", (float*)&CFG::VISUAL::WORLD::worldModulationColor);
 
                 ImGui::Checkbox("Nightmode", &CFG::VISUAL::WORLD::isNightmodeEnabled);
                 ImGui::SliderInt("Nightmode value", &CFG::VISUAL::WORLD::nightmodeValue, 0, 100);
+
+                ImGui::Checkbox("Light modulation", &CFG::VISUAL::WORLD::isLightModulationEnabled);
+                ImGui::ColorEdit4("Light color", (float*)&CFG::VISUAL::WORLD::lightModulationColor);
 
                 ImGui::EndTabItem();
             }
@@ -424,7 +427,7 @@ namespace MENU {
                 {
                     ImGui::Checkbox("Enable", &CFG::AIM::RAGEBOT::isAimEnabled);
                     ImGui::Checkbox("Silent", &CFG::AIM::RAGEBOT::isSilentEnabled);
-                    ImGui::Checkbox("Penetration", &CFG::AIM::RAGEBOT::isPenetrationEnabled);
+                    //ImGui::Checkbox("Penetration", &CFG::AIM::RAGEBOT::isPenetrationEnabled);
                     ImGui::Checkbox("Force Shoot", &CFG::AIM::RAGEBOT::isForceShootEnabled);
 
                     ImGui::SliderInt("Min Damage", &CFG::AIM::RAGEBOT::minDamage, 1, 100);

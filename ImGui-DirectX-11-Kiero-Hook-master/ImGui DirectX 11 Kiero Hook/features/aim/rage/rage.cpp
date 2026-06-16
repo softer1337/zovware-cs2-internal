@@ -12,13 +12,13 @@
 
 // Simple logging helper for debugging
 inline void debug_log(const char* fmt, ...) {
-    //char buffer[512];
-    //va_list args;
-    //va_start(args, fmt);
-    //vsnprintf(buffer, sizeof(buffer), fmt, args);
-    //va_end(args);
-    //OutputDebugStringA(buffer);
-    //OutputDebugStringA("\n");
+    char buffer[512];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_end(args);
+    OutputDebugStringA(buffer);
+    OutputDebugStringA("\n");
 }
 
 #include "../../../sdk/trace/trace.h"

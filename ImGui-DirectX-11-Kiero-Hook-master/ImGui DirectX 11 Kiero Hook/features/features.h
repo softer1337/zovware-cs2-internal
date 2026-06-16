@@ -4,6 +4,8 @@
 #include "../sdk/mesh_sdk.h"
 #include "../core/hooks/drawaggregate/drawaggregate.h"
 
+class C_LightScene;
+
 namespace FEATURES {
 	namespace MOVEMENT {
 		namespace BHOP {
@@ -45,6 +47,7 @@ namespace FEATURES {
 			namespace WORLDCOLOR {
 				void onDrawAggregateSceneObject(__int64 a1, __int64 a2, CAggregateObjectArray* a3);
 				void onTonemapUpdate(__int64 a1);
+				__int64 onUpdateLightScene(__int64 a1, C_LightScene* object, __int64 a3);
 			}
 			namespace SMOKE {
 				void onDrawSmoke(__int64 a1);

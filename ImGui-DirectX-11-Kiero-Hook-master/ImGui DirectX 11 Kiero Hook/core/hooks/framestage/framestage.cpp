@@ -12,13 +12,7 @@
 
 // Simple logging helper
 inline void debug_log(const char* fmt, ...) {
-    char buffer[512];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(buffer, sizeof(buffer), fmt, args);
-    va_end(args);
-    OutputDebugStringA(buffer);
-    OutputDebugStringA("\n");
+
 }
 
 using FrameStageNotify = __int64(__fastcall*)(__int64, int);

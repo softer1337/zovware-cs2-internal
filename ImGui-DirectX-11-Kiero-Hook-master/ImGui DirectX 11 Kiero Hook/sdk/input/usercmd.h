@@ -17,7 +17,9 @@ struct RepeatedPtrField_t
 	struct Rep_t
 	{
 		int nAllocatedSize;
-		T* tElements[(std::numeric_limits<int>::max() - 2 * sizeof(int)) / sizeof(void*)];
+		T** tElements() {
+			return reinterpret_cast<T**>(reinterpret_cast<uintptr_t>(this) + 0x8);
+		}
 	};
 
 	void* pArena;
@@ -27,12 +29,12 @@ struct RepeatedPtrField_t
 
 	T* operator[](int index)
 	{
-		return pRep->tElements[index];
+		return pRep->tElements()[index];
 	}
 
 	const T* operator[](int index) const
 	{
-		return pRep->tElements[index];
+		return pRep->tElements()[index];
 	}
 
 	inline int& size() {
@@ -82,7 +84,7 @@ public:
 class CMsgVector : public CBasePB
 {
 public:
-	void* vecValue; // 0x18 //vec4
+	Vec4 vecValue;
 };
 
 class CCSGOInterpolationInfoPB : public CBasePB
@@ -93,6 +95,14 @@ public:
 	//int nDstTick; // 0x20
 };
 
+class CCSGOInterpolationInfoPBCL : public CBasePB
+{
+public:
+	float flFraction; // 0x18
+	int nSrcTick; // 0x1C
+	int nDstTick; // 0x20
+};
+
 class CCSGOInputHistoryEntryPB : public CBasePB
 {
 public:
@@ -101,7 +111,7 @@ public:
 	CMsgVector* pTargetHeadPositionCheck; // 0x28
 	CMsgVector* pTargetAbsPositionCheck; // 0x30
 	CMsgQAngle* pTargetAngPositionCheck; // 0x38
-	CCSGOInterpolationInfoPB* cl_interp; // 0x40
+	CCSGOInterpolationInfoPBCL* cl_interp; // 0x40
 	CCSGOInterpolationInfoPB* sv_interp0; // 0x48
 	CCSGOInterpolationInfoPB* sv_interp1; // 0x50
 	CCSGOInterpolationInfoPB* player_interp; // 0x58
@@ -112,6 +122,7 @@ public:
 	int nFrameNumber; // 0x70
 	int nTargetEntIndex; // 0x74
 };
+static_assert(sizeof(CCSGOInputHistoryEntryPB) == 0x78);
 
 struct CInButtonStatePB : CBasePB
 {
@@ -378,7 +389,7 @@ public:
 		if (nIndex >= csgoUserCmd.inputHistoryField.pRep->nAllocatedSize || nIndex >= csgoUserCmd.inputHistoryField.nCurrentSize)
 			return nullptr;
 
-		return csgoUserCmd.inputHistoryField.pRep->tElements[nIndex];
+		return csgoUserCmd.inputHistoryField.pRep->tElements()[nIndex];
 	}
 
 	void SetSubTickAngle(const QAngle& angView) {

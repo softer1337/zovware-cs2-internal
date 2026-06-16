@@ -139,6 +139,9 @@ namespace CFG {
 
 			inline bool isWorldModulationEnabled = false;
 			inline Vec3 worldModulationColor = Vec3(1.f, 0.f, 1.f);
+
+			inline bool isLightModulationEnabled = false;
+			inline ImColor lightModulationColor = ImColor(1.f, 1.f, 1.f, 1.f);
 		}
 	}
 	namespace AIM {

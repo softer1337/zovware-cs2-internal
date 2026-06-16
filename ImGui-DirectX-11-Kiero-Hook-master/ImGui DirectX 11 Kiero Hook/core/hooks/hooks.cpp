@@ -10,6 +10,7 @@
 #include "viewmodel/calcviewmodel.h"
 #include "tonemapupdate/tonemapupdate.h"
 #include "entity/entity.h"
+#include "lightupdate/lightupdate.h"
 
 void InitHooks() {
 	Hook_createmove();
@@ -24,6 +25,7 @@ void InitHooks() {
 	Hook_tonemapUpdate();
 	Hook_onAddEntity();
 	Hook_onRemoveEntity();
+    Hook_updateLightScene();
 
 	Init_ChatMessage();
 

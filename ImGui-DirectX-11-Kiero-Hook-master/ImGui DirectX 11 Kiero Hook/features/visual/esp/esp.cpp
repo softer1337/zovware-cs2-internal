@@ -133,7 +133,7 @@ void drawHP(ImVec2 start, ImVec2 end, int health) {
 	
 	// Health text
 	char healthText[16];
-	sprintf_s(healthText, "%d", health);
+	//sprintf_s(healthText, "%d", health);
 	ImGui::GetBackgroundDrawList()->AddText(
 		ImGui::GetFont(),
 		ImGui::GetFontSize(),

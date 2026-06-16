@@ -17,13 +17,13 @@ namespace {
     Shader = "sky.vfx"
     g_flBrightnessExposureBias = 0.000000
     g_flRenderOnlyExposureBias = 0.000000
-    g_tSkyTexture = resource:"%s_c"
+    g_tSkyTexture = resource:"%s"
 })";
 
     // Доступные скайбоксы
     const char* arr_skybox_paths[] = {
-        "materials/skybox/cs_italy_s2_skybox_sunset_2_lighting_exr_17a5b8e9.vtex",
-        "materials/skybox/jungle_cube_pfm_da6ad36f.vtex",
+        "materials/skybox/cs_italy_s2_skybox_sunset_2_exr_e56cedf6.vtex",
+        "materials/skybox/sky_overcast_01_exr_da4019b1.vtex",
     };
 
     // Блокирующая загрузка текстуры скайбокса
@@ -60,7 +60,7 @@ void FEATURES::VISUAL::WORLD::SKYBOX::onUpdateSkyBox(__int64 pObjectDesc, __int6
 {
     if (iDataCount > 0)
     {
-        uintptr_t skybox_data_addr = 0x68 * iDataCount + pSceneData - 0x50;
+        uintptr_t skybox_data_addr = pSceneData + 0x18;
         auto SkyBoxData = *(CSkyBoxSceneObject**)(skybox_data_addr);
         if (SkyBoxData)
         {
@@ -73,8 +73,9 @@ void FEATURES::VISUAL::WORLD::SKYBOX::onUpdateSkyBox(__int64 pObjectDesc, __int6
             // Применяем кастомный материал если он загружен
             if (g_has_custom_skybox && g_custom_skybox_material) {
                 CMaterial2* mat = g_custom_skybox_material;
-                if (SkyBoxData->mat && mat) {
-                    *SkyBoxData->mat = mat;
+                if (SkyBoxData->m_material && mat) {
+                    *SkyBoxData->m_material = mat;
+                    printf("%p\n", SkyBoxData);
                 }
             }
         }

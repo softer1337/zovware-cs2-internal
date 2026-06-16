@@ -156,6 +156,7 @@
     <ClCompile Include="core\hooks\framestage\framestage.cpp" />
     <ClCompile Include="core\hooks\generateprimitives\generateprimitives.cpp" />
     <ClCompile Include="core\hooks\hooks.cpp" />
+    <ClCompile Include="core\hooks\lightupdate\lightupdate.cpp" />
     <ClCompile Include="core\hooks\mouseinp\mouseinp.cpp" />
     <ClCompile Include="core\hooks\pattern.cpp" />
     <ClCompile Include="core\hooks\skybox\updateskybox.cpp" />
@@ -181,6 +182,7 @@
     <ClCompile Include="features\visual\world\smoke\smokecolor.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="features\visual\world\worldcolor\light.cpp" />
     <ClCompile Include="features\visual\world\worldcolor\tone.cpp" />
     <ClCompile Include="features\visual\world\worldcolor\worldcolor.cpp" />
     <ClCompile Include="features\visual\world\skybox\skybox.cpp" />
@@ -219,6 +221,7 @@
     <ClInclude Include="core\hooks\framestage\framestage.h" />
     <ClInclude Include="core\hooks\generateprimitives\generateprimitives.h" />
     <ClInclude Include="core\hooks\hooks.h" />
+    <ClInclude Include="core\hooks\lightupdate\lightupdate.h" />
     <ClInclude Include="core\hooks\mouseinp\mouseinp.h" />
     <ClInclude Include="core\hooks\pattern.h" />
     <ClInclude Include="core\hooks\skybox\updateskybox.h" />

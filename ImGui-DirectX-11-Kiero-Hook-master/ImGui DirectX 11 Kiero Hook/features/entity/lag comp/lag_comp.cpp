@@ -241,7 +241,7 @@ void c_lag_compensation::run() {
 
     for (auto& ref_player : CachedPlayers) {
         if (!ref_player.check_and_update_pawn()) {
-            ref_player.m_lagcomp_data.invalidate();
+            //ref_player.m_lagcomp_data.invalidate();
             continue;
         }
 
@@ -275,7 +275,7 @@ void c_lag_compensation::run() {
         }
 
         if (!ref_player.pawn->is_enemy()) {
-            ref_player.m_lagcomp_data.invalidate();
+            //ref_player.m_lagcomp_data.invalidate();
             continue;
         }
 
@@ -292,7 +292,7 @@ void c_lag_compensation::run() {
             if (should_update) {
                 lag_record_t new_record = {};
                 if (!new_record.setup(ref_player.pawn)) {
-                    ref_player.m_lagcomp_data.invalidate();
+                    //ref_player.m_lagcomp_data.invalidate();
                     continue;
                 }
                 store_hitboxes(&new_record, ref_player.m_penetration_context);
@@ -304,8 +304,8 @@ void c_lag_compensation::run() {
                 ref_player.m_lagcomp_data.remove_oldest();
             }
         }
-        else
-            ref_player.m_lagcomp_data.invalidate();
+        else{}
+            //ref_player.m_lagcomp_data.invalidate();
 
         //s_backtrack_models[ref_player.m_pawn].handle(ref_player.m_pawn);
     }
@@ -338,7 +338,7 @@ void c_lag_compensation::force_input_history() {
 
     for (int i = 0; i < command->csgoUserCmd.inputHistoryField.nTotalSize; i++) {
 
-        CCSGOInputHistoryEntryPB* entry = command->csgoUserCmd.inputHistoryField[i];
+        CCSGOInputHistoryEntryPB* entry = command->GetInputHistoryEntry(i);
         if (!entry)
             continue;
 
