@@ -11,8 +11,11 @@
 #include "tonemapupdate/tonemapupdate.h"
 #include "entity/entity.h"
 #include "lightupdate/lightupdate.h"
+#include "overrideview/overrideview.h"
+
 
 void InitHooks() {
+	MH_Initialize();
 	Hook_createmove();
 	//Hook_drawarray(); // old
 	Hook_generatePrimitives(); //new
@@ -26,6 +29,7 @@ void InitHooks() {
 	Hook_onAddEntity();
 	Hook_onRemoveEntity();
     Hook_updateLightScene();
+	Hook_overrideView();
 
 	Init_ChatMessage();
 

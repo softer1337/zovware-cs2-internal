@@ -3,6 +3,7 @@
 #include "cfg.hpp"
 #include "../sdk/mesh_sdk.h"
 #include "../core/hooks/drawaggregate/drawaggregate.h"
+#include "../core/hooks/overrideview/overrideview.h"
 
 class C_LightScene;
 
@@ -54,6 +55,9 @@ namespace FEATURES {
 			}
 			namespace PARTICLES {
 				void onFrameStage(int stage);
+			}
+			namespace CAMERA {
+				void onOverrideMove(__int64 a1, CViewSetup* a2);
 			}
 		}
 	}

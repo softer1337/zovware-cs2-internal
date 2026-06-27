@@ -87,10 +87,10 @@ namespace MENU {
         colors[ImGuiCol_CheckMark] = ImVec4(0.40f, 0.60f, 0.80f, 1.0f);
 
         static constexpr int bone_indices[19] = { 6, 5, 0, 1, 2, 3, 4, 22, 25, 23, 26, 24, 27, 10, 15, 8, 9, 13, 14 };
-        for (int i = 0; i < 19; ++i)
+        for (int i = 0; i < 19; ++i) {
             CFG::AIM::RAGEBOT::m_hitboxes.push_back(bone_indices[i]);
-        
-        CFG::AIM::RAGEBOT::m_multipointed_hitboxes.push_back(6);
+            CFG::AIM::RAGEBOT::m_multipointed_hitboxes.push_back(bone_indices[i]);
+        }
 
         LoadFont();
         if (myFont) ImGui::GetIO().FontDefault = myFont;
@@ -410,6 +410,9 @@ namespace MENU {
                 ImGui::Checkbox("Light modulation", &CFG::VISUAL::WORLD::isLightModulationEnabled);
                 ImGui::ColorEdit4("Light color", (float*)&CFG::VISUAL::WORLD::lightModulationColor);
 
+                ImGui::Checkbox("Aspect ratio", &CFG::VISUAL::WORLD::isAspectRatioEnabled);
+                ImGui::SliderFloat("Aspect ratio value", &CFG::VISUAL::WORLD::aspectRatio, 0.5f, 2.f);
+
                 ImGui::EndTabItem();
             }
 
@@ -428,7 +431,7 @@ namespace MENU {
                     ImGui::Checkbox("Enable", &CFG::AIM::RAGEBOT::isAimEnabled);
                     ImGui::Checkbox("Silent", &CFG::AIM::RAGEBOT::isSilentEnabled);
                     //ImGui::Checkbox("Penetration", &CFG::AIM::RAGEBOT::isPenetrationEnabled);
-                    ImGui::Checkbox("Force Shoot", &CFG::AIM::RAGEBOT::isForceShootEnabled);
+                    ImGui::Checkbox("Auto fire", &CFG::AIM::RAGEBOT::isForceShootEnabled);
 
                     ImGui::SliderInt("Min Damage", &CFG::AIM::RAGEBOT::minDamage, 1, 100);
 					ImGui::SliderInt("Hitchance", &CFG::AIM::RAGEBOT::hitChance, 1, 100);

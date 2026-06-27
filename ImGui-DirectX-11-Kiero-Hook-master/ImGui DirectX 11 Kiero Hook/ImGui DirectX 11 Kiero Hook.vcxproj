@@ -158,6 +158,7 @@
     <ClCompile Include="core\hooks\hooks.cpp" />
     <ClCompile Include="core\hooks\lightupdate\lightupdate.cpp" />
     <ClCompile Include="core\hooks\mouseinp\mouseinp.cpp" />
+    <ClCompile Include="core\hooks\overrideview\overrideview.cpp" />
     <ClCompile Include="core\hooks\pattern.cpp" />
     <ClCompile Include="core\hooks\skybox\updateskybox.cpp" />
     <ClCompile Include="core\hooks\smoke\smokedraw.cpp" />
@@ -178,6 +179,7 @@
     <ClCompile Include="features\visual\esp\esp.cpp" />
     <ClCompile Include="features\visual\modelchanger\modelchanger.cpp" />
     <ClCompile Include="features\visual\viewmodel\viewmodel.cpp" />
+    <ClCompile Include="features\visual\world\camera\camera.cpp" />
     <ClCompile Include="features\visual\world\particles\particlemgr.cpp" />
     <ClCompile Include="features\visual\world\smoke\smokecolor.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
@@ -223,6 +225,7 @@
     <ClInclude Include="core\hooks\hooks.h" />
     <ClInclude Include="core\hooks\lightupdate\lightupdate.h" />
     <ClInclude Include="core\hooks\mouseinp\mouseinp.h" />
+    <ClInclude Include="core\hooks\overrideview\overrideview.h" />
     <ClInclude Include="core\hooks\pattern.h" />
     <ClInclude Include="core\hooks\skybox\updateskybox.h" />
     <ClInclude Include="core\hooks\smoke\smokedraw.h" />

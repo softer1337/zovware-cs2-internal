@@ -33,7 +33,9 @@ void Hook_MouseInputEnabled()
 	{
 		MH_EnableHook(reinterpret_cast<void*>(addr));
 	}
-
+	else {
+		MessageBoxA(0, "inp", "debug", 0);
+	}
 	if (addr2 && MH_CreateHook(reinterpret_cast<void*>(addr2),
 		hkIsRelativeMouseMode,
 		reinterpret_cast<void**>(&IsRelativeMouseMode_o)) == MH_OK)

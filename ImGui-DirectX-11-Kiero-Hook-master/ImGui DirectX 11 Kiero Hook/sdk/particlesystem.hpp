@@ -75,15 +75,11 @@ public:
     int* create_particle_effect(unsigned int* effect_index, const char* name) {
         using fn_create_particle_effect = int* (__fastcall*)(C_GameParticleManager*, unsigned int*, const char*, int, __int64, __int64, __int64, int);
 
-        static uintptr_t addr = PatternScan("client.dll", "E8 ? ? ? ? 8B 08 89 8B ? ? ? ? E8 ? ? ? ? 40 80 FF");
+        static uintptr_t addr = PatternScan("client.dll", "4C 8B DC 53 48 81 EC ? ? ? ? F2 0F 10 05");
         if (!addr) return nullptr;
-        
-        addr += *reinterpret_cast<int32_t*>(addr + 1);
-        addr += 5;
-
         static fn_create_particle_effect create_particle_effect = reinterpret_cast<fn_create_particle_effect>(addr);
 
-        return create_particle_effect(this, effect_index, name, 8, 0ll, 0ll, 0ll, 0);
+        return create_particle_effect(this, effect_index, name, 2, 0ll, 0ll, 0ll, 0);
     }
 
     bool set_particle_data(unsigned int effect_index, int unknown, void* data) {

@@ -89,6 +89,9 @@ void InitImGui()
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (!g_state.running || g_state.unloading)
+		return CallWindowProcA(oWndProc, hwnd, uMsg, wParam, lParam);
+
 	static ImVec2 m_vecMousePosSave{};
 	if (uMsg == WM_QUIT || uMsg == WM_CLOSE || uMsg == WM_DESTROY)
 	{
@@ -138,6 +141,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 {
 	if (!g_state.running || g_state.unloading)
 		return oPresent(pSwapChain, SyncInterval, Flags);
+
 	CheckStopKey();
 	if (!init)
 	{
@@ -175,19 +179,6 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT 
 	return oPresent(pSwapChain, SyncInterval, Flags);
 }
 
-DWORD WINAPI MainThread(LPVOID lpReserved)
-{
-	bool init_hook = false;
-	do
-	{
-		if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
-		{
-			kiero::bind(8, (void**)& oPresent, hkPresent);
-			init_hook = true;
-		}
-	} while (!init_hook);
-	return TRUE;
-}
 void CreateConsole() {
 	if (AllocConsole()) {
 		// Перенаправляем stdout, stderr, stdin в новую консоль
@@ -199,28 +190,37 @@ void CreateConsole() {
 		system("cls");
 
 		// Устанавливаем заголовок окна
-		SetConsoleTitleA("Debug Console");
-
-		printf("Console created successfully!\n");
+		SetConsoleTitleA("ZZZZZZ CBOOOO");
 	}
 }
-DWORD WINAPI InitCheat(LPVOID lpReserved)
+
+
+DWORD WINAPI MainThread(LPVOID lpReserved)
 {
-	if (!g_state.running || g_state.unloading)
-		return 0;
 	CreateConsole();
 	Sleep(5000);
 	Interface::Init();
 	InitHooks();
-	//initAudioSystem();
+	initAudioSystem();
 	ChatMessage msg;
 	msg << ImColor(1.f, 0.f, 1.f) << "[binware] " << ImColor(1.f, 1.f, 1.f) << "Init!";
 	msg.send();
 	//PlayHitSound(0.3f, BRAINROT);
+
+	bool init_hook = false;
+	do
+	{
+		if (kiero::init(kiero::RenderType::D3D11) == kiero::Status::Success)
+		{
+			kiero::bind(8, (void**)& oPresent, hkPresent);
+			init_hook = true;
+		}
+	} while (!init_hook);
+
 	ItemSchema::get()->initialize();
- 
+
 	g_state.initialized = true;
-	return 0;
+	return TRUE;
 }
 
 BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
@@ -230,7 +230,6 @@ BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
 	case DLL_PROCESS_ATTACH:
 		DisableThreadLibraryCalls(hMod);
 		g_module = hMod;
-		CreateThread(nullptr, 0, InitCheat, hMod, 0, nullptr);
 		CreateThread(nullptr, 0, MainThread, hMod, 0, nullptr);
 		break;
 	case DLL_PROCESS_DETACH:

@@ -109,7 +109,7 @@ void drawBox(ImVec2 start, ImVec2 end, Vec3 origin, const float viewMatrix[4][4]
 void drawHP(ImVec2 start, ImVec2 end, int health) {
 	if (!CFG::VISUAL::ESP::drawHealthBar) return;
 
-	float barWidth = 3.0f;
+	float barWidth = 5.0f;
 	ImVec2 barStart = ImVec2(start.x - 5.0f, start.y);
 	ImVec2 barEnd = ImVec2(start.x - 2.0f, end.y);
 	
@@ -133,7 +133,7 @@ void drawHP(ImVec2 start, ImVec2 end, int health) {
 	
 	// Health text
 	char healthText[16];
-	//sprintf_s(healthText, "%d", health);
+	sprintf_s(healthText, "%d", health);
 	ImGui::GetBackgroundDrawList()->AddText(
 		ImGui::GetFont(),
 		ImGui::GetFontSize(),

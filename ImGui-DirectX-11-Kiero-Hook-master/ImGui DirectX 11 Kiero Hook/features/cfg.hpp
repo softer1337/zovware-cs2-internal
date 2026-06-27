@@ -142,6 +142,9 @@ namespace CFG {
 
 			inline bool isLightModulationEnabled = false;
 			inline ImColor lightModulationColor = ImColor(1.f, 1.f, 1.f, 1.f);
+
+			inline bool isAspectRatioEnabled = false;
+			inline float aspectRatio = 16.f / 9.f;
 		}
 	}
 	namespace AIM {
